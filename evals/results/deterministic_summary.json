@@ -1,0 +1,41 @@
+{
+  "mode": "deterministic",
+  "cases": 22,
+  "repeats": 1,
+  "architectures": {
+    "single": {
+      "runs": 22,
+      "policy_pass": 21,
+      "policy_pass_rate": 0.955,
+      "public_minimum_pass": "6/6",
+      "errors": 0,
+      "avg_latency_ms": 103.5,
+      "p95_latency_ms": 370.1,
+      "avg_llm_calls": 0,
+      "avg_tool_calls": 7,
+      "avg_tokens": 0,
+      "grounded_evidence_pct": 100.0,
+      "human_review_pct": 100.0,
+      "failures": [
+        "SY-07: label,approvals_exact,flags_required"
+      ]
+    },
+    "staged": {
+      "runs": 22,
+      "policy_pass": 21,
+      "policy_pass_rate": 0.955,
+      "public_minimum_pass": "6/6",
+      "errors": 0,
+      "avg_latency_ms": 84.7,
+      "p95_latency_ms": 360.2,
+      "avg_llm_calls": 0,
+      "avg_tool_calls": 7,
+      "avg_tokens": 0,
+      "grounded_evidence_pct": 100.0,
+      "human_review_pct": 100.0,
+      "failures": [
+        "SY-07: label,approvals_exact,flags_required"
+      ]
+    }
+  }
+}
