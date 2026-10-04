@@ -12,6 +12,8 @@ Two architectures are implemented on the same tools, rules and guardrails and ev
 * **A - single agent**: one tool-using agent.
 * **B - staged**: Agent 1 (evidence analyst, tools) -> Agent 2 (policy reviewer, no tools).
 
+> **Submission PDF (2 pages): [`docs/10277_Harshit_Tiwari.pdf`](docs/10277_Harshit_Tiwari.pdf)** (rebuild: `python docs/build_pdf.py`).
+>
 > **Final answer: ship Architecture A (single agent).** See [Ship decision](#ship-decision) and [`docs/DECISION_MEMO.md`](docs/DECISION_MEMO.md).
 
 ## Quick start (one command)
