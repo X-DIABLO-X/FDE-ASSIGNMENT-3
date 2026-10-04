@@ -196,7 +196,7 @@ def run_agent(llm: LLM, system: str, user: str, tools: list[dict], execute: Call
         force = turn == max_turns
         choice = {"type": "tool", "name": final_tool["name"]} if force else {"type": "any"}
         try:
-            resp = llm.chat(system, messages, all_tools, choice)
+            resp = llm.chat(system, messages, [final_tool] if force else all_tools, choice)
         except Exception as exc:
             if force:  # a model that still wants more tools when forced to answer: report, let caller fall back
                 run.llm_calls += 1

@@ -122,8 +122,22 @@ SUBMIT_BRIEF = {
 }
 
 
+def _llm_view(tb: ToolBox):
+    """Tool executor for the model: same calls, but results are trimmed to what the model needs (token budget).
+    The full outputs stay in ``tb.results`` and are what evidence is grounded against."""
+    def run(name: str, args: dict) -> dict:
+        out = tb.call(name, args)
+        if name == "evaluate_policy" and "findings" in out:
+            out = {k: v for k, v in out.items() if k != "findings"}
+        elif name == "find_existing_software" and "matches" in out:
+            out = {**out, "matches": [{k: v for k, v in m.items() if k not in ("notes", "software_id", "annual_cost_usd")}
+                                      | {"software_id": m["software_id"]} for m in out["matches"]]}
+        return out
+    return run
+
+
 def _wrap_request(request: dict) -> str:
-    return ("<untrusted_request_data>\n" + json.dumps(request, indent=2, default=str) + "\n</untrusted_request_data>")
+    return ("<untrusted_request_data>\n" + json.dumps(request, default=str) + "\n</untrusted_request_data>")
 
 
 # --------------------------------------------------------------------------- deterministic mode
@@ -144,7 +158,7 @@ def run_single(request: dict, llm: LLM | None = None) -> ProcurementDecision:
         run = run_agent(
             llm, SINGLE_SYSTEM,
             f"Analyse this purchase request and submit your recommendation.\n{_wrap_request(request)}",
-            TOOL_SPECS, tb.call, SUBMIT_DECISION, max_turns=5, on_llm_call=tel.record_llm_call)
+            TOOL_SPECS, _llm_view(tb), SUBMIT_DECISION, max_turns=5, on_llm_call=tel.record_llm_call)
     except Exception as exc:  # network / provider failure -> still return a safe, rule-based answer
         return finalize(tb, None, "single", "deterministic-fallback", tel.llm_calls,
                         notes=[f"LLM failure ({type(exc).__name__}: {str(exc)[:120]}); rule-based result returned"])
@@ -168,7 +182,7 @@ def run_staged(request: dict, llm: LLM | None = None) -> ProcurementDecision:
         s1 = run_agent(
             llm, STAGE1_SYSTEM,
             f"Collect evidence for this purchase request.\n{_wrap_request(request)}",
-            TOOL_SPECS, tb.call, SUBMIT_BRIEF, max_turns=5, on_llm_call=tel.record_llm_call)
+            TOOL_SPECS, _llm_view(tb), SUBMIT_BRIEF, max_turns=5, on_llm_call=tel.record_llm_call)
         calls, tin, tout = s1.llm_calls, s1.input_tokens, s1.output_tokens
         if s1.final is None:
             return finalize(tb, None, "staged", "deterministic-fallback", calls, (tin, tout),
