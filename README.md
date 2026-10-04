@@ -101,8 +101,8 @@ by hand from `data/procurement_policy.md`. Per-case rows: `evals/results/*_per_c
 * **Measured live data I do have** (Groq `qwen/qwen3.8-27b`): a 22-case single-agent run of the *first, less constrained design*
   scored **11/22**, avg **12.5 s** per request (p95 22.6 s, quota waits excluded), 2.09 LLM calls, 7.3 tool calls
   (`evals/results/v1_single_agent_live_run.log`). Its failures were the model adding flags/approvals/labels the policy did not
-  support (over-escalating low-risk requests). That is why routing is now rule-derived. One live smoke run of both architectures
-  on REQ-1004 used 6.2k tokens (A, 2 calls) vs 9.6k tokens (B, 3 calls).
+  support (over-escalating low-risk requests). That is why routing is now rule-derived. One live smoke run of each architecture
+  on REQ-1004 (first design) used 6.2k tokens (A, 2 calls) vs 9.6k tokens (B, 3 calls). The revised design was **not** re-run live.
 * The second half of that first live run (staged) was discarded: quota exhaustion made calls fall back to rules, so it was not a fair measurement.
 * Rules alone fail exactly three cases (`SY-07`, `HO-3`: PII/secrets only in free text; `HO-4`: injection phrased outside the scan
   patterns). The model closes all three in both architectures.
@@ -115,7 +115,7 @@ by hand from `data/procurement_policy.md`. Per-case rows: `evals/results/*_per_c
 |---|---|---|
 | Accuracy on 26 cases | 26/26 | 26/26 |
 | LLM calls | 2 | 3 (+50%) |
-| Tokens (one live case) | 6.2k | 9.6k (+55%) |
+| Tokens (one live case, first design) | 6.2k | 9.6k (+55%) |
 | False overlap claims to be cleaned up by code | 0 | 6 |
 | Moving parts / failure points | 1 agent loop | 2 loops + hand-off schema |
 
