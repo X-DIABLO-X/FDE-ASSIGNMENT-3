@@ -1,0 +1,49 @@
+{
+  "recommendation": "Route for required reviews before approval",
+  "next_step": "Route REQ-1005 to Department Head, Finance (budget exception: $22,000 requested vs $18,000 available, $4,000 shortfall), Procurement, Security (vendor assessment not completed; customer_pii access), Privacy (customer PII, data stored outside region) and Legal (new vendor, legal terms status Unknown). This is a recommendation only; no approval is implied.",
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "find_existing_software returned no matches for category Sales Intelligence, vendor GrowthForge or product ProspectPilot, and get_purchase_history returned no purchases for GrowthForge, so no overlapping tool was found."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Elena Garcia (E003), Sales; request for ProspectPilot by GrowthForge, Sales Intelligence, annual_cost_usd 22000, user_count 35, data_access_level customer_pii, integrations [CRM], urgency normal. No instruction-like text found in the request.",
+      "reference": "REQ-1005"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Sales available_usd 18000 versus annual_cost_usd 22000; within_budget false; shortfall_usd 4000.0.",
+      "reference": "department Sales"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "No matches for category Sales Intelligence, vendor GrowthForge, product ProspectPilot (matches: []).",
+      "reference": "Sales Intelligence"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "No purchases on record for vendor GrowthForge (purchases: []).",
+      "reference": "GrowthForge"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "Vendor V012 GrowthForge: procurement_status New, security_status Pending, security_review_date empty, legal_terms_status Unknown, notes 'No prior contract'.",
+      "reference": "V012"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "risk_level high, security_review_status not_completed, last_review_date null, processes_personal_data true, stores_data_outside_region true, notes 'New vendor; full security assessment required.'",
+      "reference": "GrowthForge"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals: Department Head, Finance, Procurement, Security, Privacy, Legal; risk_flags: budget_insufficient, security_review_required, privacy_review_required, legal_review_required; missing_information empty; data_classes customer_pii; baseline_label 'Route for required reviews before approval'.",
+      "reference": "REQ-1005"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "recommendation": "Proceed with standard approvals",
+  "next_step": "Department Head (Maya Rao) and Procurement must review and approve the 10 extra CodeMate seats; the request is within budget and CodeMate is already approved. Security should be told that the justification states developers will paste production API keys and database passwords into the assistant, so they can decide whether that usage is acceptable under the existing CodeMate security controls. This tool only recommends and does not approve.",
+  "inferred_data_classes": ["credentials_secrets", "production_access"],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "The request is an add-on of the requester's own existing vendor product (CodeMate, SW008, 120 seats, Engineering scope), so it is not overlap and current utilisation is unknown. The only other catalog match from a different vendor, NeuralDesk Business (SW009, General AI), is only a related_category match and is not shown to be a credible alternative for debugging deployments."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "The business_justification says developers will paste production API keys and database passwords into the assistant to debug failing deployments. This reveals credentials and production access that the structured data_access_level (internal_documents) does not capture.",
+      "reference": "request.business_justification"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "baseline_label is 'Proceed with standard approvals'. Required approvals are Department Head and Procurement. risk_flags, missing_information and data_classes are all empty.",
+      "reference": "baseline_label"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Engineering has an annual software budget of 300000 USD with 274000 USD committed and 26000 USD available. The 5000 USD request is within_budget: true, with a shortfall of 0.0.",
+      "reference": "Engineering"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "CodeMate (SW008) is already Approved with 120 licensed seats, scope Engineering, and covers the requester's department. It matches on same_vendor, same_product and same_category. NeuralDesk Business (SW009) is a different vendor and matches only on related_category.",
+      "reference": "SW008, SW009"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2440 (2026-04-18) was an Approved Engineering purchase of CodeMate for 90000 USD annually, 120 seats.",
+      "reference": "PO-2440"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "CodeMate (V008) has Approved procurement, security and legal terms status, with the security review dated 2026-08-20. The registry notes say 'Approved for source-code use subject to security controls'. They do not mention credentials or secrets.",
+      "reference": "V008"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "The call returned status ok with http_status 200. risk_level is medium and security_review_status is approved (last review 2026-08-20). processes_personal_data is false and stores_data_outside_region is false. The notes say 'Approved for source-code use when repository controls are enabled.' The review does not cover pasting credentials or secrets.",
+      "reference": "data.risk_level"
+    }
+  ]
+}

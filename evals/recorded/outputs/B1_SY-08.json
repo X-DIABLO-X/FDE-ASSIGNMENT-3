@@ -1,0 +1,52 @@
+{
+  "summary": "Request SYN-08: HelpDeskly Analytics Add-on, $7,500/yr for 20 users, from Mia Thompson (Customer Success). The vendor is clean (registry procurement, security and legal all Approved; risk level low; security review approved 2026-03-15). The one rule-derived flag is budget_insufficient: Customer Success has $7,000 available against a $7,500 cost, a shortfall of $500.0. Required approvals per evaluate_policy are Department Head, Finance and Procurement. Baseline label: Route for required reviews before approval. No instruction-like text was found in the request. No data classes are revealed by the free text beyond the stated internal_documents access level.",
+  "concerns": [
+    "Budget: check_budget shows annual_software_budget_usd 140000, committed_usd 133000, available_usd 7000 against annual_cost_usd 7500, within_budget false, shortfall_usd 500.0.",
+    "Existing HelpDeskly product SW007 (Approved, 75 licensed seats, scope Customer Success) already covers the requester's department; PO-2457 (2026-05-02, $46,000, 75 seats) is on record. Finance and Procurement should confirm the add-on is not already covered by the existing licence.",
+    "get_vendor_risk reports processes_personal_data true for HelpDeskly. Whether the analytics add-on touches personal data is not stated in the request, which lists only internal_documents access and no integrations."
+  ],
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": true,
+    "reason": "find_existing_software returns HelpDeskly (SW007, Approved, 75 seats, scope Customer Success) with match_types same_vendor, same_product, same_category and covers_requester_department true. The match is the same vendor, so this is an add-on to an already-approved tool and not a different vendor's overlapping tool. No existing_tool_overlap flag is added. The tool results do not say whether the analytics add-on capability is already included in the existing seats."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Mia Thompson (E005, Customer Success, IC4); manager and department head Robert King (E007, Go To Market, Director). Request: HelpDeskly Analytics Add-on, annual_cost_usd 7500, user_count 20, data_access_level internal_documents, requested_integrations [], urgency normal. Justification: additional analytics add-on seats for support leads.",
+      "reference": "SYN-08"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Customer Success annual_software_budget_usd 140000, committed_usd 133000, available_usd 7000, annual_cost_usd 7500, within_budget false, shortfall_usd 500.0.",
+      "reference": "Customer Success"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Existing match HelpDeskly (SW007), status Approved, licensed_seats 75, scope Customer Success, match_types same_vendor, same_product, same_category, covers_requester_department true.",
+      "reference": "SW007"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2457 dated 2026-05-02, Customer Success, HelpDeskly, annual_amount_usd 46000, status Approved, notes '75 seats'.",
+      "reference": "PO-2457"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "HelpDeskly (V007) found: procurement_status Approved, security_status Approved (review date 2026-03-15), legal_terms_status Approved, notes 'Standard vendor'.",
+      "reference": "V007"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Status ok (http 200): risk_level low, security_review_status approved, last_review_date 2026-03-15, processes_personal_data true, stores_data_outside_region false, notes 'Current assessment.'",
+      "reference": "HelpDeskly"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals [Department Head, Finance, Procurement]; risk_flags [budget_insufficient]; missing_information []; data_classes []; baseline_label 'Route for required reviews before approval'.",
+      "reference": "SYN-08"
+    }
+  ]
+}

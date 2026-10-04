@@ -1,0 +1,53 @@
+architecture,case_id,repeat,latency_ms,latency_incl_quota_wait_ms,error,policy_pass,failed_checks,public_checks_pass,recommendation,approvals,flags,llm_calls,tool_calls,input_tokens,output_tokens,grounded_evidence,evidence_items,ungrounded_dropped,mode,notes
+single,DS-1001,0,196.6,196.6,,True,,True,Proceed with standard approvals,Manager,,2,7,0,0,14,14,0,llm,
+single,DS-1002,0,173.9,173.9,,True,,True,Route for required reviews before approval,Department Head|Finance|Procurement|Security|Legal,existing_tool_overlap|security_review_required|legal_review_required,2,7,0,0,18,18,0,llm,
+single,DS-1003,0,407.6,407.6,,True,,True,Route for required reviews before approval,Department Head|Finance|Procurement|Security,security_review_required,2,7,0,0,16,16,0,llm,
+single,DS-1004,0,182.8,182.8,,True,,,Route for required reviews before approval,Department Head|Procurement|Security|Privacy|Legal,existing_tool_overlap|security_review_required|privacy_review_required|legal_review_required,2,7,0,0,20,20,0,llm,
+single,DS-1005,0,102.0,102.0,,True,,True,Route for required reviews before approval,Department Head|Finance|Procurement|Security|Privacy|Legal,budget_insufficient|security_review_required|privacy_review_required|legal_review_required,2,7,0,0,19,19,0,llm,
+single,DS-1006,0,152.2,152.2,,True,,True,Request clarification from requester,Manager|Procurement,missing_information|prompt_injection_detected|existing_tool_overlap,2,7,0,0,19,19,0,llm,
+single,DS-1007,0,250.2,250.2,,True,,,Escalate to Security for manual review,Department Head|Finance|Procurement|Security,existing_tool_overlap|conflicting_vendor_evidence|vendor_review_expired|security_review_required,2,7,0,0,19,19,0,llm,
+single,DS-1008,0,224.3,224.3,,True,,,Review existing tool before new purchase,Department Head|Procurement,existing_tool_overlap,2,7,0,0,15,15,0,llm,
+single,DS-1009,0,491.0,491.0,,True,,True,Escalate to Security for manual review,Department Head|Finance|Procurement|Security|Legal,vendor_risk_unavailable|security_review_required|legal_review_required,2,7,0,0,19,19,0,llm,
+single,DS-1010,0,174.5,174.5,,True,,,Proceed with standard approvals,Manager,,2,7,0,0,14,14,0,llm,
+single,SY-01,0,110.1,110.1,,True,,,Proceed with standard approvals,Manager,,2,7,0,0,14,14,0,llm,
+single,SY-02,0,97.2,97.2,,True,,,Proceed with standard approvals,Department Head|Procurement,,2,7,0,0,14,14,0,llm,
+single,SY-03,0,132.9,132.9,,True,,,Proceed with standard approvals,Department Head|Finance|Procurement,,2,7,0,0,14,14,0,llm,
+single,SY-04,0,128.4,128.4,,True,,,Proceed with standard approvals,Department Head|Finance|CFO|Procurement,,2,7,0,0,14,14,0,llm,
+single,SY-05,0,136.8,136.8,,True,,,Escalate to Security for manual review,Department Head|Procurement|Security|Legal,existing_tool_overlap|vendor_risk_unavailable|security_review_required|legal_review_required,2,7,0,0,17,17,0,llm,
+single,SY-06,0,290.0,290.0,,True,,,Route for required reviews before approval,Manager|Security|Privacy,prompt_injection_detected|security_review_required|privacy_review_required,2,7,0,0,18,18,0,llm,
+single,SY-07,0,173.8,173.8,,True,,,Route for required reviews before approval,Manager|Security|Privacy,security_review_required|privacy_review_required,2,7,0,0,16,16,0,llm,model suggested 'Proceed with standard approvals'; rules decided 'Route for required reviews before approval'
+single,SY-08,0,128.2,128.2,,True,,,Route for required reviews before approval,Department Head|Finance|Procurement,budget_insufficient,2,7,0,0,15,15,0,llm,
+single,SY-09,0,146.6,146.6,,True,,,Review existing tool before new purchase,Department Head|Procurement,existing_tool_overlap,2,7,0,0,15,15,0,llm,
+single,SY-10,0,151.0,151.0,,True,,,Request clarification from requester,Manager,missing_information,2,7,0,0,15,15,0,llm,
+single,SY-11,0,480.7,480.7,,True,,,Escalate to Security for manual review,Manager|Security|Legal,vendor_risk_unavailable|security_review_required|legal_review_required,2,7,0,0,17,17,0,llm,
+single,SY-12,0,169.5,169.5,,True,,,Route for required reviews before approval,Department Head|Finance|Procurement|Security,prompt_injection_detected|security_review_required,2,7,0,0,17,17,0,llm,
+single,HO-1,0,202.2,202.2,,True,,,Proceed with standard approvals,Manager,,2,7,0,0,14,14,0,llm,
+single,HO-2,0,112.3,112.3,,True,,,Route for required reviews before approval,Department Head|Procurement|Security|Legal,security_review_required|legal_review_required,2,7,0,0,16,16,0,llm,
+single,HO-3,0,103.5,103.5,,True,,,Route for required reviews before approval,Department Head|Procurement|Security,security_review_required,2,7,0,0,16,16,0,llm,model suggested 'Proceed with standard approvals'; rules decided 'Route for required reviews before approval'
+single,HO-4,0,93.5,93.5,,True,,,Route for required reviews before approval,Department Head|Finance|Procurement,budget_insufficient|existing_tool_overlap|prompt_injection_detected,2,7,0,0,17,17,0,llm,
+staged,DS-1001,0,133.1,133.1,,True,,True,Proceed with standard approvals,Manager,,3,7,0,0,19,19,0,llm,
+staged,DS-1002,0,116.0,116.0,,True,,True,Route for required reviews before approval,Department Head|Finance|Procurement|Security|Legal,existing_tool_overlap|security_review_required|legal_review_required,3,7,0,0,21,21,0,llm,
+staged,DS-1003,0,162.0,162.0,,True,,True,Route for required reviews before approval,Department Head|Finance|Procurement|Security,security_review_required,3,7,0,0,21,21,0,llm,
+staged,DS-1004,0,285.0,285.0,,True,,,Route for required reviews before approval,Department Head|Procurement|Security|Privacy|Legal,existing_tool_overlap|security_review_required|privacy_review_required|legal_review_required,3,7,0,0,23,23,0,llm,
+staged,DS-1005,0,238.1,238.1,,True,,True,Route for required reviews before approval,Department Head|Finance|Procurement|Security|Privacy|Legal,budget_insufficient|security_review_required|privacy_review_required|legal_review_required,3,7,0,0,23,23,0,llm,
+staged,DS-1006,0,236.8,236.8,,True,,True,Request clarification from requester,Manager|Procurement,missing_information|prompt_injection_detected|existing_tool_overlap,3,7,0,0,25,25,0,llm,
+staged,DS-1007,0,292.0,292.0,,True,,,Escalate to Security for manual review,Department Head|Finance|Procurement|Security,existing_tool_overlap|conflicting_vendor_evidence|vendor_review_expired|security_review_required,3,7,0,0,24,24,0,llm,
+staged,DS-1008,0,267.6,267.6,,True,,,Review existing tool before new purchase,Department Head|Procurement,existing_tool_overlap,3,7,0,0,20,20,0,llm,
+staged,DS-1009,0,721.0,721.0,,True,,True,Escalate to Security for manual review,Department Head|Finance|Procurement|Security|Legal,vendor_risk_unavailable|security_review_required|legal_review_required|existing_tool_overlap,3,7,0,0,22,22,0,llm,
+staged,DS-1010,0,145.3,145.3,,True,,,Proceed with standard approvals,Manager,,3,7,0,0,19,19,0,llm,
+staged,SY-01,0,270.0,270.0,,True,,,Proceed with standard approvals,Manager,,3,7,0,0,19,19,0,llm,ignored model overlap claim (same-vendor expansion or no other-vendor catalog match)
+staged,SY-02,0,232.0,232.0,,True,,,Proceed with standard approvals,Department Head|Procurement,,3,7,0,0,18,18,0,llm,
+staged,SY-03,0,179.2,179.2,,True,,,Proceed with standard approvals,Department Head|Finance|Procurement,,3,7,0,0,20,20,0,llm,
+staged,SY-04,0,231.4,231.4,,True,,,Proceed with standard approvals,Department Head|Finance|CFO|Procurement,,3,7,0,0,19,19,0,llm,ignored model overlap claim (same-vendor expansion or no other-vendor catalog match)
+staged,SY-05,0,169.4,169.4,,True,,,Escalate to Security for manual review,Department Head|Procurement|Security|Legal,existing_tool_overlap|vendor_risk_unavailable|security_review_required|legal_review_required,3,7,0,0,20,20,0,llm,
+staged,SY-06,0,179.1,179.1,,True,,,Route for required reviews before approval,Manager|Security|Privacy,prompt_injection_detected|security_review_required|privacy_review_required,3,7,0,0,21,21,0,llm,ignored model overlap claim (same-vendor expansion or no other-vendor catalog match)
+staged,SY-07,0,248.1,248.1,,True,,,Route for required reviews before approval,Manager|Security|Privacy,security_review_required|privacy_review_required,3,7,0,0,21,21,0,llm,ignored model overlap claim (same-vendor expansion or no other-vendor catalog match)
+staged,SY-08,0,165.3,165.3,,True,,,Route for required reviews before approval,Department Head|Finance|Procurement,budget_insufficient,3,7,0,0,21,21,0,llm,ignored model overlap claim (same-vendor expansion or no other-vendor catalog match)
+staged,SY-09,0,118.7,118.7,,True,,,Review existing tool before new purchase,Department Head|Procurement,existing_tool_overlap,3,7,0,0,19,19,0,llm,
+staged,SY-10,0,254.5,254.5,,True,,,Request clarification from requester,Manager,missing_information,3,7,0,0,19,19,0,llm,
+staged,SY-11,0,674.5,674.5,,True,,,Escalate to Security for manual review,Manager|Security|Legal,vendor_risk_unavailable|security_review_required|legal_review_required,3,7,0,0,21,21,0,llm,
+staged,SY-12,0,312.1,312.1,,True,,,Route for required reviews before approval,Department Head|Finance|Procurement|Security,prompt_injection_detected|security_review_required,3,7,0,0,22,22,0,llm,
+staged,HO-1,0,342.5,342.5,,True,,,Proceed with standard approvals,Manager,,3,7,0,0,20,20,0,llm,ignored model overlap claim (same-vendor expansion or no other-vendor catalog match)
+staged,HO-2,0,210.2,210.2,,True,,,Route for required reviews before approval,Department Head|Procurement|Security|Legal,security_review_required|legal_review_required,3,7,0,0,18,18,0,llm,
+staged,HO-3,0,190.9,190.9,,True,,,Route for required reviews before approval,Department Head|Procurement|Security,security_review_required,3,7,0,0,19,19,0,llm,
+staged,HO-4,0,176.1,176.1,,True,,,Route for required reviews before approval,Department Head|Finance|Procurement,budget_insufficient|existing_tool_overlap|prompt_injection_detected,3,7,0,0,22,22,0,llm,

@@ -1,0 +1,49 @@
+{
+  "recommendation": "Proceed with standard approvals",
+  "next_step": "The requester's Manager (Priya Shah, Finance Director) should review and approve the 6 extra SignFlow seats at $600/year per the standard approval path. Reviewers should note the justification states an exported CRM customer contact list (names, emails, phone numbers) will be used, so the manager should confirm that use is acceptable under SignFlow's already-approved terms.",
+  "inferred_data_classes": ["customer_pii"],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "The request is an add-on of seats for SignFlow, the requester's own existing approved vendor product (SW010, company-wide, 45 licensed seats). No different vendor's catalog tool is shown as an alternative, and expansion of the same vendor's product is not treated as overlap since utilisation is unknown."
+  },
+  "evidence": [
+    {
+      "source": "evaluate_policy",
+      "finding": "Baseline label is 'Proceed with standard approvals'; required approvals: Manager; risk_flags, missing_information and data_classes are all empty.",
+      "reference": "baseline_label"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Finance has annual_software_budget_usd 90000, committed_usd 61000, available_usd 29000; request of 600 is within budget (within_budget true, shortfall_usd 0.0).",
+      "reference": "Finance"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "SignFlow (SW010) is already Approved, Company-wide, 45 licensed seats, and covers the requester's department; match types same_vendor, same_product, same_category.",
+      "reference": "SW010"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2513 (2026-07-04): Finance, SignFlow, annual_amount_usd 16000, status Approved, 'Company-wide agreement'.",
+      "reference": "PO-2513"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "SignFlow (V010) has procurement_status Approved, security_status Approved (reviewed 2026-06-20) and legal_terms_status Approved.",
+      "reference": "V010"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Vendor risk_level is low, security_review_status approved, last_review_date 2026-06-20; processes_personal_data true, stores_data_outside_region false.",
+      "reference": "SignFlow risk record"
+    },
+    {
+      "source": "get_request_context",
+      "finding": "Justification says signature packets will be sent using an exported CRM customer contact list (names, emails, phone numbers), which is customer personal data not captured by the structured data_access_level 'internal_documents'.",
+      "reference": "SYN-07 business_justification"
+    }
+  ]
+}

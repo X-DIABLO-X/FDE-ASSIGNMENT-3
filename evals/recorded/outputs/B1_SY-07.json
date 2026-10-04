@@ -1,0 +1,54 @@
+{
+  "summary": "SYN-07 requests SignFlow Extra Seats (6 users, $600/yr, E-signature) for Finance. Budget, vendor registry and vendor risk all check out, and SignFlow is already approved company-wide. However, the business justification reveals that an exported CRM customer contact list (names, emails, phone numbers) will be used, which is customer PII not reflected in the declared data_access_level of internal_documents. evaluate_policy returned baseline_label 'Proceed with standard approvals' with required approval 'Manager' and no risk flags or missing information, but it did not account for this free-text data class, so customer_pii is added for code to route. No instruction-like text was found in the request.",
+  "concerns": [
+    "The justification states the exported customer contact list (names, emails, phone numbers) from the CRM will be used, which is customer PII, but the request declares data_access_level 'internal_documents'. The declared data level understates the data involved.",
+    "evaluate_policy returned data_classes [] and risk_flags [], which does not reflect the customer PII revealed in the free text; routing should be re-evaluated with customer_pii.",
+    "get_vendor_risk reports processes_personal_data: true for SignFlow (stores_data_outside_region: false, risk_level: low, security_review_status: approved, last_review_date 2026-06-20), so the vendor does process personal data, but the evidence does not confirm that a data processing agreement covers customer contact data from the CRM.",
+    "SignFlow already has an approved company-wide agreement (SW010, 45 licensed seats, PO-2513 at $16,000). The evidence does not show whether existing seats are exhausted, so the need for 'extra seats' could not be verified from the tool results."
+  ],
+  "inferred_data_classes": ["customer_pii"],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": true,
+    "credible_gap": false,
+    "reason": "find_existing_software returned SW010 SignFlow (Approved, 45 licensed seats, Company-wide, covers_requester_department: true) matching on same_vendor, same_product and same_category. This is the same vendor's existing approved product, not a different vendor's tool, so no existing_tool_overlap flag is raised. No evidence shows existing seats are insufficient, so a credible gap is not established."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Noah Williams (E004), Finance, IC4, United Kingdom; manager and department head Priya Shah (E006), Director. Request: SignFlow Extra Seats, E-signature, annual_cost_usd 600, user_count 6, data_access_level 'internal_documents', requested_integrations [], urgency 'normal'. Justification: send signature packets to clients using the exported customer contact list (names, emails, phone numbers) from the CRM.",
+      "reference": "SYN-07"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Finance annual_software_budget_usd 90000, committed_usd 61000, available_usd 29000; annual_cost_usd 600; within_budget true, shortfall_usd 0.0.",
+      "reference": "Finance"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Match SW010 SignFlow, E-signature, vendor SignFlow, status Approved, licensed_seats 45, scope Company-wide, covers_requester_department true, match_types same_vendor, same_product, same_category.",
+      "reference": "SW010"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2513 dated 2026-07-04, Finance, SignFlow, annual_amount_usd 16000, status Approved, notes 'Company-wide agreement'.",
+      "reference": "PO-2513"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "Vendor V010 SignFlow found: procurement_status Approved, security_status Approved (security_review_date 2026-06-20), legal_terms_status Approved, notes 'Standard vendor'.",
+      "reference": "V010"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "status ok, http 200: risk_level low, security_review_status approved, last_review_date 2026-06-20, processes_personal_data true, stores_data_outside_region false, notes 'Current assessment.'",
+      "reference": "SignFlow"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals ['Manager'], risk_flags [], missing_information [], data_classes [], baseline_label 'Proceed with standard approvals'. The tool was run without the customer_pii class revealed by the free-text justification.",
+      "reference": "SYN-07"
+    }
+  ]
+}

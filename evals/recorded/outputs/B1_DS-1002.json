@@ -1,0 +1,57 @@
+{
+  "summary": "REQ-1002: Sarah Lee (Marketing, IC4) requests BrandBoard Enterprise (BrandBoard, Design & Creative) at 12000 USD/year for 25 users with internal_marketing data access and SSO integration. The spend fits within the Marketing budget (available 15000 USD, within_budget true), but BrandBoard is a new vendor with security review not completed, legal terms in Draft, and two approved Design & Creative tools (PixelCraft Pro, CreativeSuite) already cover Marketing. evaluate_policy returns baseline label 'Route for required reviews before approval' with Department Head, Finance, Procurement, Security and Legal approvals required.",
+  "concerns": [
+    "Vendor onboarding is incomplete: registry shows procurement_status New, security_status Pending, legal_terms_status Draft, with the note 'Not yet through full onboarding'.",
+    "get_vendor_risk reports risk_level medium, security_review_status not_completed, last_review_date null and processes_personal_data true, so the vendor processes personal data without a completed security review.",
+    "Two approved Design & Creative tools already cover the Marketing department: PixelCraft Pro (SW001, 65 seats, Company-wide) and CreativeSuite (SW002, 40 seats, Marketing scope).",
+    "The justification only says PixelCraft is 'too specialist for non-designers'. It does not address CreativeSuite, which is Marketing-scoped, and the claim about PixelCraft is not verified by any tool result.",
+    "Budget is tight: Marketing has 180000 USD annual software budget with 165000 USD committed and 15000 USD available. The 12000 USD request fits but would leave 3000 USD.",
+    "Stated data access is internal_marketing. No sensitive data class is revealed by the free text, but the vendor flags processes_personal_data true, so the actual data flows should be confirmed by Security/Privacy.",
+    "The request text contains no instruction-like content; all request fields were treated as untrusted business data."
+  ],
+  "inferred_data_classes": [],
+  "additional_risk_flags": ["existing_tool_overlap"],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": true,
+    "credible_gap": false,
+    "reason": "find_existing_software returned two approved same-category tools from different vendors that both cover Marketing: PixelCraft Pro (SW001, 65 seats, Company-wide) and CreativeSuite (SW002 by CreativeSuite Labs, 40 seats, Marketing scope). The request argues only that PixelCraft is too specialist for non-designers. It does not explain why CreativeSuite cannot meet the campaign-template need, and no tool result confirms a functional gap, so no credible gap is established."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Sarah Lee (E001), Marketing, IC4, India; manager and department head David Chen (E009), Director, Singapore. Request: BrandBoard Enterprise by BrandBoard, Design & Creative, annual_cost_usd 12000, user_count 25, data_access_level internal_marketing, integrations SSO, urgency normal.",
+      "reference": "REQ-1002"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Marketing annual_software_budget_usd 180000, committed_usd 165000, available_usd 15000; annual_cost_usd 12000, within_budget true, shortfall_usd 0.0.",
+      "reference": "Marketing"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Two same_category matches, both Approved and both covers_requester_department true: PixelCraft Pro (PixelCraft, 65 seats, Company-wide) and CreativeSuite (CreativeSuite Labs, 40 seats, Marketing scope).",
+      "reference": "SW001, SW002"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "No prior purchases found for vendor BrandBoard (purchases: []).",
+      "reference": "BrandBoard"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "BrandBoard found (V011): procurement_status New, security_status Pending, security_review_date empty, legal_terms_status Draft, notes 'Not yet through full onboarding'.",
+      "reference": "V011"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "status ok (http 200): risk_level medium, security_review_status not_completed, last_review_date null, processes_personal_data true, stores_data_outside_region false, notes 'Vendor onboarding incomplete.'",
+      "reference": "BrandBoard"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals: Department Head, Finance, Procurement, Security, Legal. risk_flags: existing_tool_overlap, security_review_required, legal_review_required. missing_information: none. data_classes: none. baseline_label: 'Route for required reviews before approval'.",
+      "reference": "baseline_label"
+    }
+  ]
+}

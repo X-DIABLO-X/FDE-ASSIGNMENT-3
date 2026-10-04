@@ -1,0 +1,56 @@
+{
+  "summary": "SYN-10 requests SignFlow Extra Seats (E-signature, annual_cost_usd 600) for the Finance team from requester E004 (Noah Williams). The vendor is fully cleared (procurement, security and legal Approved; risk_level low) and the cost fits the budget (available_usd 29000). The request omits user_count and data_access_level, so evaluate_policy flags missing_information with baseline label 'Request clarification from requester' and a Manager approval. No instruction-like text was found in the request.",
+  "concerns": [
+    "user_count is null, so the number of extra seats cannot be verified against the existing 45 licensed seats.",
+    "data_access_level is null, so the data classes the extra seats will handle are unknown. get_vendor_risk shows processes_personal_data: true for SignFlow.",
+    "The existing SignFlow agreement (SW010, PO-2513 at annual_amount_usd 16000, Company-wide, 45 licensed seats) already covers the Finance department. The tools do not say whether the seats are an add-on to that agreement or a separate purchase."
+  ],
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [
+    "number of users/licenses",
+    "intended data-access level"
+  ],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "find_existing_software returns only SignFlow itself (SW010, Approved, 45 licensed seats, Company-wide, covers_requester_department: true). This is the same vendor and product, not a different vendor's tool, so it is a seat expansion rather than a competing-tool overlap. No other vendor's catalog tool was returned."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Noah Williams (E004), Finance, IC4, United Kingdom. Manager and department head are both Priya Shah (E006, Director). Request is SignFlow Extra Seats, E-signature, annual_cost_usd 600, urgency normal, user_count null, data_access_level null, requested_integrations empty.",
+      "reference": "SYN-10"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Finance annual_software_budget_usd 90000, committed_usd 61000, available_usd 29000. annual_cost_usd 600 is within_budget: true, shortfall_usd 0.0.",
+      "reference": "Finance"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Match SW010 SignFlow, E-signature, status Approved, licensed_seats 45, scope Company-wide, match_types same_vendor/same_product/same_category, covers_requester_department: true.",
+      "reference": "SW010"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2513 on 2026-07-04, Finance, SignFlow, annual_amount_usd 16000, status Approved, notes 'Company-wide agreement'.",
+      "reference": "PO-2513"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "Vendor V010 SignFlow is found with procurement_status Approved, security_status Approved (security_review_date 2026-06-20) and legal_terms_status Approved. Notes: 'Standard vendor'.",
+      "reference": "V010"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Status ok (http 200). risk_level low, security_review_status approved, last_review_date 2026-06-20, processes_personal_data true, stores_data_outside_region false.",
+      "reference": "SignFlow"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals: Manager. risk_flags: missing_information. missing_information: number of users/licenses, intended data-access level. data_classes empty. baseline_label: Request clarification from requester.",
+      "reference": "SYN-10"
+    }
+  ]
+}

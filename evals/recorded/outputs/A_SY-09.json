@@ -1,0 +1,49 @@
+{
+  "recommendation": "Review existing tool before new purchase",
+  "next_step": "Sarah Lee (Marketing) should confirm with the Marketing Department Head (David Chen) whether the already-licensed company-wide DocSpace (SW004, 200 seats) meets the shared wiki need before DocSpace Plus is bought. Procurement should then review the request and the Department Head must approve if it proceeds.",
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "The only match is the requester's own vendor (DocSpace, same vendor and product family, Approved, Company-wide, 200 seats, covers Marketing). DocSpace Plus is an add-on/tier of that existing product, not a different vendor's tool, so it is not treated as overlap. Current utilisation of SW004 is unknown, so it should be checked before purchase."
+  },
+  "evidence": [
+    {
+      "source": "find_existing_software",
+      "finding": "DocSpace (Knowledge Management) is already Approved with 200 licensed seats, Company-wide scope, and covers_requester_department is true; match types: same_vendor, same_product, same_category.",
+      "reference": "SW004"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "Policy returned risk flag existing_tool_overlap, required approvals Department Head and Procurement, no missing information, and baseline_label 'Review existing tool before new purchase'.",
+      "reference": "baseline_label"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Marketing has annual_software_budget_usd 180000, committed_usd 165000, available_usd 15000; the request of 3000 is within_budget true with shortfall_usd 0.0.",
+      "reference": "Marketing"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "DocSpace is Approved for procurement, security (reviewed 2026-02-24) and legal terms; notes: 'Standard vendor'.",
+      "reference": "V004"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Vendor risk_level is low, security_review_status approved, last_review_date 2026-02-24; processes_personal_data true, stores_data_outside_region false.",
+      "reference": "DocSpace"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "No prior purchases are recorded for vendor DocSpace.",
+      "reference": "DocSpace"
+    },
+    {
+      "source": "get_request_context",
+      "finding": "Request is 3000 USD annually for 12 users with data_access_level internal_marketing, no requested integrations, normal urgency, for a shared wiki for marketing notes and launch checklists. No instruction-like text was found in the request.",
+      "reference": "SYN-09"
+    }
+  ]
+}

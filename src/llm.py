@@ -155,6 +155,44 @@ class GroqLLM:
                            usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0))
 
 
+class RecordedLLM:
+    """Replays model answers recorded in ``evals/recorded/outputs`` (see evals/recorded/README.md).
+
+    It behaves like a model that, on its first turn, requests all seven tools in parallel (with the data classes it
+    inferred) and, on its second, submits the recorded structured answer. All tools, the rules engine and the
+    guardrails run for real, so replay exercises the same code path as a live model. Latency / token counts are
+    NOT meaningful in replay and are not reported as measurements.
+    """
+
+    model = "recorded"
+    TOOLS = ["get_request_context", "check_budget", "find_existing_software", "get_purchase_history",
+             "lookup_vendor_registry", "get_vendor_risk", "evaluate_policy"]
+
+    def __init__(self, directory: str | None = None):
+        from pathlib import Path
+        self.dir = Path(directory or Path(__file__).resolve().parents[1] / "evals" / "recorded" / "outputs")
+
+    def _load(self, kind: str) -> dict:
+        case = os.environ["RECORDED_CASE_ID"]
+        return json.loads((self.dir / f"{kind}_{case}.json").read_text(encoding="utf-8"))
+
+    def chat(self, system, messages, tools, tool_choice=None) -> LLMResponse:
+        names = {t["name"] for t in tools}
+        if "submit_evidence_brief" in names:
+            kind, final = "B1", "submit_evidence_brief"
+        elif system.startswith("You are Agent 2"):
+            kind, final = "B2", "submit_decision"
+        else:
+            kind, final = "A", "submit_decision"
+        data = self._load(kind)
+        called = any(m["role"] == "user" and isinstance(m["content"], list) for m in messages)
+        if kind != "B2" and not called:
+            blocks = [{"type": "tool_use", "id": f"rec{i}", "name": n, "input": {}} for i, n in enumerate(self.TOOLS)]
+            blocks[-1]["input"] = {"extra_data_classes": data.get("inferred_data_classes", [])}
+            return LLMResponse(blocks, "tool_use")
+        return LLMResponse([{"type": "tool_use", "id": "recfinal", "name": final, "input": data}], "tool_use")
+
+
 _instances: dict[tuple, LLM] = {}
 
 
@@ -163,6 +201,8 @@ def get_llm() -> LLM | None:
     if os.getenv("DISABLE_LLM") == "1":
         return None
     provider = os.getenv("LLM_PROVIDER", "").lower()
+    if provider == "recorded":
+        return _instances.setdefault(("recorded",), RecordedLLM())
     if (provider == "groq" or not provider) and os.getenv("GROQ_API_KEY"):
         key = ("groq", os.getenv("GROQ_MODEL") or DEFAULT_GROQ_MODEL, os.getenv("GROQ_REASONING_EFFORT", "low"))
         return _instances.setdefault(key, GroqLLM())

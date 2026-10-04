@@ -1,0 +1,49 @@
+{
+  "recommendation": "Proceed with standard approvals",
+  "next_step": "Route SYN-04 for the required approvals: Department Head, Finance, CFO and Procurement (annual cost $25,000.01 falls in 'above $25,000'). MetricLoop is already an approved vendor and this is a seat expansion of existing catalog software SW006; no additional reviews are triggered by the policy result.",
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": true,
+    "reason": "find_existing_software matched MetricLoop (SW006, Approved, 55 licensed seats, Company-wide) on same_vendor, same_product and same_category. This is an explicit expansion of the requester's own vendor's existing tool, not a different vendor's overlapping tool, so no existing_tool_overlap flag is added. Seat utilisation of the existing 55 seats could not be verified from the tool results."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Request SYN-04 from E002 (Engineering): MetricLoop Extra Seats, vendor MetricLoop, Analytics / BI, annual_cost_usd 25000.01, user_count 30, data_access_level internal_documents, no requested integrations, urgency normal. No instruction-like text found in the request fields.",
+      "reference": "request SYN-04"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Engineering available_usd 26000 against annual_cost_usd 25000.01; within_budget true; shortfall_usd 0.0.",
+      "reference": "department Engineering"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Existing match MetricLoop (SW006): status Approved, licensed_seats 55, scope Company-wide, match_types same_vendor, same_product, same_category; covers_requester_department true.",
+      "reference": "SW006"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "No purchases on record for vendor MetricLoop (purchases is an empty list).",
+      "reference": "vendor MetricLoop"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "MetricLoop (V006): procurement_status Approved, security_status Approved (security_review_date 2026-05-10), legal_terms_status Approved.",
+      "reference": "V006"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Status ok (http 200): risk_level low, security_review_status approved, last_review_date 2026-05-10, processes_personal_data true, stores_data_outside_region false. The personal-data flag is a vendor-level fact not tied to this request by any tool; the request declares only internal_documents access.",
+      "reference": "vendor MetricLoop"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "Annual cost $25,000.01 falls in 'above $25,000' -> required_approvals: Department Head, Finance, CFO, Procurement; risk_flags: none; missing_information: none; data_classes: none; baseline_label 'Proceed with standard approvals'.",
+      "reference": "Policy section 4"
+    }
+  ]
+}

@@ -91,6 +91,7 @@ def patched(case: dict) -> ExitStack:
 def run_case(case: dict, architecture: str) -> tuple[ProcurementDecision | None, float, float, str]:
     """Returns (decision, latency_ms, throttled_ms, error). throttled_ms = time spent waiting on the provider's quota."""
     request = case.get("request") or da.get_request(case["request_id"])
+    os.environ["RECORDED_CASE_ID"] = case["case_id"]  # used only by the replay provider
     llm = get_llm()
     waited0 = getattr(llm, "throttled_s", 0.0)
     start = time.perf_counter()
@@ -108,6 +109,8 @@ def main() -> None:
     ap.add_argument("--architectures", nargs="+", default=["single", "staged"], choices=["single", "staged"])
     ap.add_argument("--repeats", type=int, default=1)
     ap.add_argument("--no-llm", action="store_true", help="force deterministic-only mode")
+    ap.add_argument("--replay", action="store_true",
+                    help="replay recorded model answers (evals/recorded/outputs) instead of calling a provider")
     ap.add_argument("--cases", nargs="*", help="subset of case ids")
     ap.add_argument("--label", default=None, help="output file prefix (default: llm or deterministic)")
     ap.add_argument("--resume", action="store_true", help="continue a previous run: skip rows already in <label>_rows.jsonl")
@@ -115,9 +118,11 @@ def main() -> None:
 
     if args.no_llm:
         os.environ["DISABLE_LLM"] = "1"
+    if args.replay:
+        os.environ["LLM_PROVIDER"] = "recorded"
     llm = get_llm()
     mode = f"llm:{llm.model}" if llm else "deterministic"
-    label = args.label or ("llm" if llm else "deterministic")
+    label = args.label or ("recorded" if args.replay else "llm" if llm else "deterministic")
 
     ensure_mock_api()
     cases = json.loads((ROOT / "evals" / "cases.json").read_text(encoding="utf-8"))

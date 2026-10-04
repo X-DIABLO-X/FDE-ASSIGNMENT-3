@@ -1,0 +1,49 @@
+{
+  "recommendation": "Review existing tool before new purchase",
+  "next_step": "Before any new purchase, ask the requester and Department Head (David Chen) to confirm whether the existing approved company-wide TaskFlow (SW003, 180 seats) can meet the campaign-launch task tracking need, and to state any capability that 'TaskFlow Pro' adds that SW003 lacks. If a gap is shown, proceed with the required Department Head and Procurement approvals; otherwise use the existing tool.",
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": true,
+    "credible_gap": false,
+    "reason": "find_existing_software returned SW003 'TaskFlow' (Project Management, vendor TaskFlow), Approved, Company-wide, licensed_seats 180, covers_requester_department true, match_types [same_vendor, same_product, same_category]. The justification 'Marketing wants a task tracker for campaign launches.' names no capability the existing tool lacks, so no credible gap is shown. This is an expansion of the requester's own vendor, so no additional different-vendor overlap flag is added."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Sarah Lee (E001, Marketing). Request is TaskFlow Pro from TaskFlow, Project Management, annual_cost_usd 8000, user_count 15, data_access_level internal_marketing, integrations [SSO], urgency normal. No instruction-like text in the request fields.",
+      "reference": "REQ-1008"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Marketing annual_software_budget_usd 180000, committed_usd 165000, available_usd 15000. annual_cost_usd 8000, within_budget true, shortfall_usd 0.0.",
+      "reference": "Marketing"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Match SW003 'TaskFlow' (Project Management, vendor TaskFlow), status Approved, licensed_seats 180, scope Company-wide, match_types [same_vendor, same_product, same_category], covers_requester_department true.",
+      "reference": "SW003"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2501 on 2026-06-22, department Operations, product TaskFlow, annual_amount_usd 36000, status Approved, notes 'Company-wide agreement'. The $8,000 request may duplicate existing company-wide spend. Whether 'Pro' is a separate tier is not shown by the evidence.",
+      "reference": "PO-2501"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "Vendor V003 TaskFlow: procurement_status Approved, security_status Approved (security_review_date 2026-06-03), legal_terms_status Approved, notes 'Standard vendor'.",
+      "reference": "V003"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Status ok (HTTP 200). risk_level low, security_review_status approved, last_review_date 2026-06-03, processes_personal_data true, stores_data_outside_region false. The request lists only internal_marketing data, so no additional data class is inferred.",
+      "reference": "TaskFlow"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals [Department Head, Procurement]; risk_flags [existing_tool_overlap]; missing_information []; data_classes []; baseline_label 'Review existing tool before new purchase'. Annual cost $8,000 falls in '$1,000.01 - $10,000'.",
+      "reference": "REQ-1008"
+    }
+  ]
+}

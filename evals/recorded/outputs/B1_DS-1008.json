@@ -1,0 +1,55 @@
+{
+  "summary": "REQ-1008 asks for TaskFlow Pro (Project Management, $8,000/yr, 15 users) for Marketing. The catalog already has TaskFlow (SW003) with the same vendor, product name and category. It is Approved, Company-wide, has 180 licensed seats and covers the requester's department. evaluate_policy flags existing_tool_overlap, requires Department Head and Procurement approval and gives the baseline label 'Review existing tool before new purchase'. The request is within budget, and the vendor is approved with a low risk rating. The request fields contain no instruction-like text.",
+  "concerns": [
+    "Existing approved company-wide TaskFlow (SW003, 180 seats, Company-wide) already covers the requester's department (covers_requester_department: true), and the justification ('Marketing wants a task tracker for campaign launches') names no gap the existing tool cannot meet.",
+    "PO-2501 (2026-06-22, Operations, $36,000, Approved, 'Company-wide agreement') shows an existing company-wide TaskFlow agreement, so the $8,000 request may duplicate spend.",
+    "The request names the product 'TaskFlow Pro' while the catalog lists 'TaskFlow'. The evidence does not show whether Pro is a separate tier or what extra capability it adds.",
+    "Marketing has $15,000 available of the $180,000 software budget ($165,000 committed). The $8,000 fits (within_budget: true, shortfall_usd 0.0) but would use more than half of the remaining headroom.",
+    "get_vendor_risk reports processes_personal_data: true for TaskFlow. The request lists only internal_marketing data, and evaluate_policy returned no data_classes, so no additional data class is inferred from the free text."
+  ],
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": true,
+    "credible_gap": false,
+    "reason": "find_existing_software returned SW003 'TaskFlow': same vendor, same product and same category (match_types: same_vendor, same_product, same_category). It is Approved, Company-wide, has 180 licensed seats and covers the requester's department. The request gives only a generic need for a task tracker for campaign launches and does not identify a capability the existing tool lacks, so no credible gap is shown."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Sarah Lee (E001, Marketing, IC4, India). Manager and department head is David Chen (E009, Director, Marketing, Singapore). The request is TaskFlow Pro from TaskFlow, Project Management, annual_cost_usd 8000, user_count 15, data_access_level internal_marketing, integrations [SSO], urgency normal.",
+      "reference": "REQ-1008"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Marketing annual_software_budget_usd 180000, committed_usd 165000, available_usd 15000. annual_cost_usd 8000, within_budget true, shortfall_usd 0.0.",
+      "reference": "Marketing"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Match SW003 'TaskFlow' (Project Management, vendor TaskFlow), status Approved, licensed_seats 180, scope Company-wide, match_types [same_vendor, same_product, same_category], covers_requester_department true.",
+      "reference": "SW003"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "One purchase for vendor TaskFlow: PO-2501 on 2026-06-22, department Operations, product TaskFlow, annual_amount_usd 36000, status Approved, notes 'Company-wide agreement'.",
+      "reference": "PO-2501"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "Vendor V003 TaskFlow found. procurement_status Approved, security_status Approved (security_review_date 2026-06-03), legal_terms_status Approved, notes 'Standard vendor'.",
+      "reference": "V003"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Status ok (HTTP 200). risk_level low, security_review_status approved, last_review_date 2026-06-03, processes_personal_data true, stores_data_outside_region false, notes 'Current assessment.'",
+      "reference": "TaskFlow"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals [Department Head, Procurement]. risk_flags [existing_tool_overlap]. missing_information [] and data_classes []. baseline_label 'Review existing tool before new purchase'.",
+      "reference": "REQ-1008"
+    }
+  ]
+}

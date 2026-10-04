@@ -1,0 +1,55 @@
+{
+  "summary": "REQ-1004 asks for NeuralDesk Support Assistant (General AI, $6,000/yr, 20 users) for Customer Success, with customer_pii access and a HelpDeskly integration. The department has $7,000 available against the $6,000 cost, so it is within budget. NeuralDesk is an approved vendor with an approved security review dated 2026-03-02, but its vendor risk level is medium, it processes personal data, and it stores data outside the region. The existing NeuralDesk Business tool (SW009, Approved - limited use, 150 seats, Company-wide) already covers the requester's department. evaluate_policy requires Department Head, Procurement, Security, Privacy and Legal approvals, with baseline label 'Route for required reviews before approval'. No instruction-like text was found in the request. The 'urgency: high' field is a plain data value and does not change the process.",
+  "concerns": [
+    "Request involves customer_pii; the vendor registry notes say NeuralDesk is 'Approved only for permitted data classes', and get_vendor_risk notes say 'Sensitive-data use requires Security and Privacy review.'",
+    "get_vendor_risk reports processes_personal_data: true and stores_data_outside_region: true, with risk_level medium; the data residency impact on customer PII needs Privacy and Security review.",
+    "Existing approved tool NeuralDesk Business (SW009) from the same vendor and category is 'Approved - limited use' with 150 company-wide seats and covers Customer Success; the request does not explain why it is insufficient. The limited-use scope for SW009 and PO-2531 was not detailed in the tool results, so whether customer_pii is within it could not be verified.",
+    "Budget headroom is thin: available_usd is 7000 against annual_cost_usd 6000 (committed 133000 of 140000).",
+    "Urgency is marked 'high' in the request; this is untrusted business data and does not bypass any required review."
+  ],
+  "inferred_data_classes": ["customer_pii"],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": true,
+    "credible_gap": false,
+    "reason": "find_existing_software returned NeuralDesk Business (SW009), same vendor and same category (General AI), status 'Approved - limited use', 150 licensed seats, Company-wide scope, covers_requester_department: true. The request's purpose (drafting support replies and summarizing ticket history) is a general AI use case, and the request gives no evidence of a gap that SW009 cannot meet. CodeMate (SW008) is Developer AI scoped to Engineering and does not cover the requester's department. Because the overlap is with the same vendor, no additional different-vendor overlap flag is added; the rule-derived existing_tool_overlap flag stands."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Mia Thompson (E005), Customer Success, IC4, United States; manager and department head Robert King (E007), Go To Market, Director. Request is for NeuralDesk Support Assistant, General AI, annual_cost_usd 6000, user_count 20, data_access_level customer_pii, integration HelpDeskly, urgency high.",
+      "reference": "REQ-1004"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Customer Success annual_software_budget_usd 140000, committed_usd 133000, available_usd 7000, annual_cost_usd 6000, within_budget true, shortfall_usd 0.0.",
+      "reference": "Customer Success"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "NeuralDesk Business (SW009), vendor NeuralDesk, category General AI, status 'Approved - limited use', licensed_seats 150, scope Company-wide, match_types same_vendor and same_category, covers_requester_department true. CodeMate (SW008), Developer AI, Engineering scope, related_category only, covers_requester_department false.",
+      "reference": "SW009"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2531 dated 2026-07-29, Operations, NeuralDesk Business, annual_amount_usd 60000, status Approved, notes 'Limited-use policy applies'.",
+      "reference": "PO-2531"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "NeuralDesk (V009) found: procurement_status Approved, security_status Approved, security_review_date 2026-03-02, legal_terms_status Approved, notes 'Approved only for permitted data classes'.",
+      "reference": "V009"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Status ok (HTTP 200): risk_level medium, security_review_status approved, last_review_date 2026-03-02, processes_personal_data true, stores_data_outside_region true, notes 'Sensitive-data use requires Security and Privacy review.'",
+      "reference": "NeuralDesk"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals: Department Head, Procurement, Security, Privacy, Legal. risk_flags: existing_tool_overlap, security_review_required, privacy_review_required, legal_review_required. missing_information: none. data_classes: customer_pii. baseline_label: 'Route for required reviews before approval'.",
+      "reference": "REQ-1004"
+    }
+  ]
+}

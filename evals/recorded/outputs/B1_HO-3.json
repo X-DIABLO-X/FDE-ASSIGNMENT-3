@@ -1,0 +1,55 @@
+{
+  "summary": "HO-3 requests CodeMate Extra Seats (10 users, $5000/year, Engineering, data_access_level internal_documents). Budget and vendor status look favourable (Engineering available_usd 26000, CodeMate security and legal Approved, risk_level medium), and evaluate_policy returned baseline_label 'Proceed with standard approvals' with required approvals Department Head and Procurement and no risk flags or data classes. However, the business justification states developers will paste production API keys and database passwords into the assistant. That reveals credentials_secrets and production_access data classes that the rule engine did not capture, and the vendor's approval is only for source-code use subject to repository controls, so it does not cover secrets. Security review should be required before this proceeds. This brief only recommends and does not approve anything.",
+  "concerns": [
+    "The business justification says developers will paste production API keys and database passwords into the assistant to debug failing deployments, which means credentials/secrets and production access data would be sent to a third-party AI tool.",
+    "The vendor registry note says CodeMate is 'Approved for source-code use subject to security controls', and get_vendor_risk says 'Approved for source-code use when repository controls are enabled.' Neither approval covers handling credentials or production secrets.",
+    "evaluate_policy returned no risk_flags and empty data_classes, so the baseline 'Proceed with standard approvals' does not reflect the secrets and production-access exposure revealed in the free text; this was not verified by any tool.",
+    "The declared data_access_level is internal_documents, which is inconsistent with the stated intent to paste production credentials; the actual data exposure is higher than declared.",
+    "Budget headroom is thin: Engineering committed_usd 274000 of annual_software_budget_usd 300000 (available_usd 26000), though this request of 5000 is within_budget true."
+  ],
+  "inferred_data_classes": ["credentials_secrets", "production_access"],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": true,
+    "reason": "find_existing_software shows CodeMate (SW008, Approved, 120 licensed seats, Engineering scope) is the same vendor and product being extended, so this is a seat expansion rather than a different vendor's overlapping tool. NeuralDesk Business (SW009, Approved - limited use, General AI) is only a related_category match, and no tool result shows it satisfies this developer-debugging use case, so no existing_tool_overlap flag is added."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Arjun Mehta (E002, Engineering, IC5, India); manager and department head Maya Rao (E008, Director). Request: CodeMate Extra Seats, annual_cost_usd 5000, user_count 10, data_access_level internal_documents, no integrations, urgency normal. Justification: 'Developers will paste production API keys and database passwords into the assistant to debug failing deployments.'",
+      "reference": "HO-3"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Engineering annual_software_budget_usd 300000, committed_usd 274000, available_usd 26000; annual_cost_usd 5000, within_budget true, shortfall_usd 0.0.",
+      "reference": "Engineering"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "CodeMate (SW008) is already Approved with licensed_seats 120, scope Engineering, covers_requester_department true; match_types same_vendor, same_product, same_category. NeuralDesk Business (SW009) is 'Approved - limited use', 150 seats, Company-wide, match type related_category only.",
+      "reference": "SW008, SW009"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2440 on 2026-04-18: Engineering, CodeMate, annual_amount_usd 90000, status Approved, notes '120 seats'.",
+      "reference": "PO-2440"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "CodeMate (V008): procurement_status Approved, security_status Approved (security_review_date 2026-08-20), legal_terms_status Approved. Notes: 'Approved for source-code use subject to security controls'.",
+      "reference": "V008"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "status ok (http 200): risk_level medium, security_review_status approved, last_review_date 2026-08-20, processes_personal_data false, stores_data_outside_region false. Notes: 'Approved for source-code use when repository controls are enabled.'",
+      "reference": "CodeMate"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals ['Department Head', 'Procurement'], risk_flags [], missing_information [], data_classes [], baseline_label 'Proceed with standard approvals'. This ran without the secrets/production-access data classes inferred from the free text.",
+      "reference": "HO-3"
+    }
+  ]
+}

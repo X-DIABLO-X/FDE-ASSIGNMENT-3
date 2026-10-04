@@ -1,0 +1,49 @@
+{
+  "recommendation": "Review existing tool before new purchase",
+  "next_step": "Ask the requester to confirm whether the existing approved company-wide DocSpace (SW004, 200 licensed seats, covers Marketing) meets the need for a shared wiki for marketing notes and launch checklists, and to state what DocSpace Plus adds. If no gap is shown, use the existing licence; otherwise proceed with Department Head and Procurement approvals.",
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": true,
+    "credible_gap": false,
+    "reason": "find_existing_software shows DocSpace (SW004) is Approved, Company-wide with 200 licensed seats, covers_requester_department=true, and matches on same_vendor, same_product and same_category. The justification (a shared wiki for marketing team notes and launch checklists) names no capability the existing tool lacks, so no credible gap is evidenced. This is the requester's own vendor, so it is flagged by the deterministic rules (existing_tool_overlap), not as an additional different-vendor overlap."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Request SYN-09 from E001 (Marketing) for DocSpace Plus from DocSpace, Knowledge Management, annual_cost_usd 3000, user_count 12, data_access_level internal_marketing, no integrations, urgency normal. No instruction-like text found in the request fields.",
+      "reference": "request SYN-09"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Marketing annual_software_budget_usd 180000, committed_usd 165000, available_usd 15000; annual_cost_usd 3000, within_budget true, shortfall_usd 0.0.",
+      "reference": "Marketing"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Match SW004 'DocSpace' (Knowledge Management, vendor DocSpace): status Approved, licensed_seats 200, scope Company-wide, match_types same_vendor, same_product, same_category, covers_requester_department true.",
+      "reference": "SW004"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "No prior purchases returned for vendor DocSpace (purchases: []).",
+      "reference": "DocSpace"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "Vendor V004 DocSpace: procurement_status Approved, security_status Approved (review date 2026-02-24), legal_terms_status Approved, notes 'Standard vendor'.",
+      "reference": "V004"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Status ok (http 200): risk_level low, security_review_status approved, last_review_date 2026-02-24, processes_personal_data true, stores_data_outside_region false. The request's data_access_level is internal_marketing and no personal data classes were revealed in the free text, so none are inferred.",
+      "reference": "DocSpace"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals: Department Head, Procurement. risk_flags: existing_tool_overlap. missing_information: none. data_classes: none. baseline_label: 'Review existing tool before new purchase'. Annual cost $3,000 falls in '$1,000.01 - $10,000'.",
+      "reference": "baseline_label"
+    }
+  ]
+}

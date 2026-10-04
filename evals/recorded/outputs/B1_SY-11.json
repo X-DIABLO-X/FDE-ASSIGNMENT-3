@@ -1,0 +1,55 @@
+{
+  "summary": "SYN-11: Noah Williams (Finance, IC4) requests NimbusAI Clause Check (Legal AI) at $500/year for 2 users with data_access_level 'none' and no integrations. Budget is fine (Finance available_usd 29000, within_budget true), but the vendor is new to us: lookup_vendor_registry shows procurement_status 'New', security_status 'Unknown', legal_terms_status 'Unknown', and get_vendor_risk failed with HTTP 503, so vendor risk could not be verified. evaluate_policy requires Manager, Security and Legal approvals and sets baseline label 'Escalate to Security for manual review'. No favourable security or legal status should be assumed. This is a recommendation input only; no approval is implied.",
+  "concerns": [
+    "Vendor risk could not be verified: get_vendor_risk returned status 'unavailable' (HTTP 503: Upstream vendor assessment provider is temporarily unavailable). No risk data was received.",
+    "Vendor registry (V013) lists procurement_status 'New', security_status 'Unknown' and legal_terms_status 'Unknown', with an empty security_review_date. No security or legal review is on record.",
+    "The registry note reads 'Vendor assessment service may be unavailable'; this is vendor data, not verified evidence, and gives no assurance about the vendor.",
+    "The product is a Legal AI clause-checking tool. The request declares data_access_level 'none', but reviewing vendor agreements normally means uploading contract text. This was not stated in the request, so Security and Legal should confirm what data the tool would actually process.",
+    "evaluate_policy requires Manager, Security and Legal approvals (risk flags: vendor_risk_unavailable, security_review_required, legal_review_required)."
+  ],
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "find_existing_software returned only 'related_category' matches: CodeMate (Developer AI, Engineering scope, does not cover Finance) and NeuralDesk Business (General AI, 'Approved - limited use', company-wide, 150 seats, covers requester department). Neither is a Legal AI tool, and the results do not show that NeuralDesk Business can do the clause-checking use case, so no existing-tool overlap is flagged. Security and Legal can confirm whether NeuralDesk's limited-use approval permits this work."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Noah Williams (E004, Finance, IC4, United Kingdom); manager and department head is Priya Shah (E006, Director, Finance). Request: NimbusAI Clause Check, vendor NimbusAI, category Legal AI, annual_cost_usd 500, user_count 2, data_access_level 'none', requested_integrations [], urgency 'normal'. Justification: 'Check standard clauses in routine vendor agreements.'",
+      "reference": "SYN-11"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Finance annual_software_budget_usd 90000, committed_usd 61000, available_usd 29000; annual_cost_usd 500, within_budget true, shortfall_usd 0.0.",
+      "reference": "Finance"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "Two matches, both match_types ['related_category']: CodeMate (SW008, Developer AI, Approved, 120 seats, Engineering scope, covers_requester_department false) and NeuralDesk Business (SW009, General AI, 'Approved - limited use', 150 seats, Company-wide, covers_requester_department true). No Legal AI product and no NimbusAI product in the catalog.",
+      "reference": "SW008, SW009"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "No prior purchases for vendor NimbusAI (purchases: []).",
+      "reference": "NimbusAI"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "NimbusAI found as V013: procurement_status 'New', security_status 'Unknown', security_review_date empty, legal_terms_status 'Unknown', notes 'Vendor assessment service may be unavailable'.",
+      "reference": "V013"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Call failed: status 'unavailable', data null, error 'HTTP 503: Upstream vendor assessment provider is temporarily unavailable.' Vendor risk could not be verified and no favourable status is assumed.",
+      "reference": "HTTP 503"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals ['Manager','Security','Legal']; risk_flags ['vendor_risk_unavailable','security_review_required','legal_review_required']; missing_information []; data_classes []; baseline_label 'Escalate to Security for manual review'.",
+      "reference": "baseline_label"
+    }
+  ]
+}

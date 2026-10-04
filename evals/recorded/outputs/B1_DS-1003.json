@@ -1,0 +1,55 @@
+{
+  "summary": "REQ-1003 asks for a $18,000/yr expansion of CodeMate (Developer AI) for 30 users in Engineering with source_code access via Git repositories. All seven tool results were received. The budget fits (available_usd 26000 vs annual_cost_usd 18000), CodeMate is an approved vendor with approved security and legal status, and the policy tool returned baseline_label 'Route for required reviews before approval' with required approvals Department Head, Finance, Procurement and Security and risk flag security_review_required. No instruction-like text was found in the request. This is an evidence summary only, not an approval.",
+  "concerns": [
+    "evaluate_policy returned risk flag security_review_required because data_access_level is source_code; Security review is still required even though the vendor registry shows security_status Approved (review date 2026-08-20).",
+    "Vendor notes say approval is 'subject to security controls' (lookup_vendor_registry) and 'when repository controls are enabled' (get_vendor_risk); the tools do not confirm that repository controls are enabled for the two additional squads.",
+    "Budget headroom is limited: Engineering available_usd is 26000 (committed_usd 274000 of 300000) and this request uses 18000, leaving 8000. The tool reports within_budget true and shortfall_usd 0.0.",
+    "get_vendor_risk reports risk_level medium, processes_personal_data false and stores_data_outside_region false.",
+    "The request is for a 30-user expansion, while the existing approved CodeMate record (SW008) has licensed_seats 120 and PO-2440 (annual_amount_usd 90000, 120 seats) exists. The tools do not show how many of the 120 seats are currently unused, so the need for 30 additional seats could not be verified."
+  ],
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": true,
+    "reason": "find_existing_software returned CodeMate (SW008, Approved, 120 licensed seats, scope Engineering) as a same_vendor, same_product and same_category match, so this is an expansion of the same vendor's approved tool, not a different vendor's overlapping tool. The other match, NeuralDesk Business (SW009, General AI, 'Approved - limited use'), is only a related_category match, and nothing in the tool results shows it could replace a coding assistant. The justification is to extend the approved coding assistant to two more engineering squads."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester E002 Arjun Mehta (Engineering, IC5, India); manager and department head E008 Maya Rao (Director, Engineering). Request: CodeMate Teams Expansion, vendor CodeMate, category Developer AI, annual_cost_usd 18000, user_count 30, data_access_level source_code, integrations ['Git repositories'], urgency normal.",
+      "reference": "REQ-1003"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Engineering annual_software_budget_usd 300000, committed_usd 274000, available_usd 26000; annual_cost_usd 18000; within_budget true; shortfall_usd 0.0.",
+      "reference": "Engineering"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "CodeMate (SW008): status Approved, licensed_seats 120, scope Engineering, match_types same_vendor/same_product/same_category, covers_requester_department true. NeuralDesk Business (SW009): General AI, 'Approved - limited use', 150 seats, Company-wide, match_types related_category only.",
+      "reference": "SW008, SW009"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2440 dated 2026-04-18, Engineering, CodeMate, annual_amount_usd 90000, status Approved, notes '120 seats'.",
+      "reference": "PO-2440"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "Vendor V008 CodeMate found: procurement_status Approved, security_status Approved, security_review_date 2026-08-20, legal_terms_status Approved; notes 'Approved for source-code use subject to security controls'.",
+      "reference": "V008"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "API status ok (http 200, no error): risk_level medium, security_review_status approved, last_review_date 2026-08-20, processes_personal_data false, stores_data_outside_region false; notes 'Approved for source-code use when repository controls are enabled.'",
+      "reference": "CodeMate"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals ['Department Head','Finance','Procurement','Security']; risk_flags ['security_review_required']; missing_information []; data_classes ['source_code']; baseline_label 'Route for required reviews before approval'.",
+      "reference": "REQ-1003"
+    }
+  ]
+}

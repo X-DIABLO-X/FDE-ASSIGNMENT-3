@@ -1,0 +1,49 @@
+{
+  "recommendation": "Proceed with standard approvals",
+  "next_step": "Manager (Priya Shah, Finance Director) should review and approve the $950 SignFlow Training Pack request per the standard approval path. No Security, Privacy or Legal review is triggered by the policy evaluation.",
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "The only catalog match is the requester's own existing vendor product (SignFlow, SW010, same vendor and product). This is a training package for that product, not a different vendor's tool, so it is not overlap; utilisation of the existing 45 seats is unknown."
+  },
+  "evidence": [
+    {
+      "source": "evaluate_policy",
+      "finding": "Baseline label is 'Proceed with standard approvals'; required approvals are [\"Manager\"], with no risk flags, no missing information and no data classes.",
+      "reference": "baseline_label"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Finance has an annual software budget of 90000 USD with 61000 USD committed and 29000 USD available; the 950 USD cost is within budget (shortfall_usd 0.0).",
+      "reference": "department Finance"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "SignFlow (SW010, E-signature) is already Approved with 45 licensed seats, Company-wide scope, covers the requester's department; match types same_vendor and same_product.",
+      "reference": "SW010"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "Existing SignFlow purchase PO-2513 on 2026-07-04 for Finance, 16000 USD annual, status Approved, 'Company-wide agreement'.",
+      "reference": "PO-2513"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "SignFlow (V010) is Approved for procurement, security (reviewed 2026-06-20) and legal terms.",
+      "reference": "V010"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Vendor risk level is low with security review approved (last review 2026-06-20); processes_personal_data is true but stores_data_outside_region is false. The request itself declares data_access_level 'none'.",
+      "reference": "SignFlow risk record"
+    },
+    {
+      "source": "get_request_context",
+      "finding": "Request REQ-1010 from Noah Williams (Finance, IC4) for a one-time annual training package for 12 new Finance users, 950 USD, data access none, no integrations, normal urgency; manager is Priya Shah (Director). No instruction-like text found in the request.",
+      "reference": "REQ-1010"
+    }
+  ]
+}

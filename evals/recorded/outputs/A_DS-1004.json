@@ -1,0 +1,49 @@
+{
+  "recommendation": "Route for required reviews before approval",
+  "next_step": "Department Head (Robert King) and Procurement should review REQ-1004, and Security, Privacy and Legal must each complete their reviews before any approval, since the request involves customer_pii and NeuralDesk is only approved for permitted data classes. The requester (Mia Thompson) should also confirm with Procurement whether the existing company-wide NeuralDesk Business licence (SW009, limited use) could cover this use case. No approval or purchase is made by this recommendation.",
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "The only same-category match is NeuralDesk Business (SW009), which is the requester's own vendor's product, so the request is an add-on or expansion of that vendor rather than a different vendor's alternative; its utilisation is unknown. The other match, CodeMate (SW008, Developer AI, Engineering scope), does not cover the requester's department or the support-reply use case."
+  },
+  "evidence": [
+    {
+      "source": "evaluate_policy",
+      "finding": "Baseline label is 'Route for required reviews before approval'. Required approvals: Department Head, Procurement, Security, Privacy, Legal. Risk flags: existing_tool_overlap, security_review_required, privacy_review_required, legal_review_required. Data classes: customer_pii. No missing information.",
+      "reference": "baseline_label / required_approvals / risk_flags"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Customer Success has annual_software_budget_usd 140000, committed_usd 133000, available_usd 7000; the annual_cost_usd of 6000 is within budget (shortfall_usd 0.0).",
+      "reference": "Customer Success department budget"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "NeuralDesk Business (SW009), General AI, same vendor and same category, status 'Approved - limited use', 150 licensed seats, Company-wide scope, covers_requester_department true. CodeMate (SW008) is Developer AI, Engineering scope, and does not cover the requester's department.",
+      "reference": "SW009, SW008"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2531 (2026-07-29): NeuralDesk Business, Operations, annual_amount_usd 60000, status Approved, notes 'Limited-use policy applies'.",
+      "reference": "PO-2531"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "NeuralDesk (V009) procurement_status Approved, security_status Approved (review 2026-03-02), legal_terms_status Approved, but notes say 'Approved only for permitted data classes'.",
+      "reference": "V009"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "risk_level medium; processes_personal_data true; stores_data_outside_region true; notes: 'Sensitive-data use requires Security and Privacy review.' Last review 2026-03-02.",
+      "reference": "NeuralDesk vendor risk record"
+    },
+    {
+      "source": "get_request_context",
+      "finding": "Requester Mia Thompson (E005, Customer Success, IC4); request is for 20 users at annual_cost_usd 6000 with data_access_level customer_pii and a HelpDeskly integration. Urgency is marked 'high', which is treated as business data and does not change the required reviews.",
+      "reference": "REQ-1004"
+    }
+  ]
+}

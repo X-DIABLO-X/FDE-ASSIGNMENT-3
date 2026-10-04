@@ -1,0 +1,49 @@
+{
+  "recommendation": "Route for required reviews before approval",
+  "next_step": "Department Head (Robert King), Finance and Procurement must review and approve this request; Finance should resolve the budget shortfall of 500.0 USD in Customer Success before any approval. This is a recommendation only and no purchase should proceed until the humans above sign off.",
+  "inferred_data_classes": [],
+  "additional_risk_flags": [],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": false,
+    "credible_gap": false,
+    "reason": "The request is an add-on for HelpDeskly, the requester's own existing approved vendor product (SW007, 75 licensed seats), so it is an expansion of that product and not overlap with a different vendor's tool; current utilisation of the existing seats is unknown."
+  },
+  "evidence": [
+    {
+      "source": "check_budget",
+      "finding": "Customer Success has available_usd 7000 against annual_cost_usd 7500, so within_budget is false with a shortfall_usd of 500.0 (committed 133000 of 140000).",
+      "reference": "Customer Success department budget"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "Required approvals are Department Head, Finance and Procurement; risk flag is budget_insufficient; no missing information; baseline_label is 'Route for required reviews before approval'.",
+      "reference": "baseline_label"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "HelpDeskly (SW007) is already Approved with 75 licensed seats, scoped to Customer Success, which covers the requester's department; match types are same_vendor, same_product, same_category.",
+      "reference": "SW007"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "PO-2457 (2026-05-02) for HelpDeskly in Customer Success is Approved at 46000 USD annually for 75 seats.",
+      "reference": "PO-2457"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "HelpDeskly (V007) has procurement_status Approved, security_status Approved (reviewed 2026-03-15) and legal_terms_status Approved.",
+      "reference": "V007"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Vendor risk_level is low with security_review_status approved (last review 2026-03-15); processes_personal_data is true and stores_data_outside_region is false.",
+      "reference": "HelpDeskly vendor risk record"
+    },
+    {
+      "source": "get_request_context",
+      "finding": "Requester is Mia Thompson (E005, Customer Success); department head is Robert King (E007); request is for 20 users at 7500 USD annually with data_access_level internal_documents and no integrations.",
+      "reference": "SYN-08"
+    }
+  ]
+}

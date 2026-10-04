@@ -1,0 +1,55 @@
+{
+  "summary": "Request SYN-05: Priya Shah (Finance, Director, E006) requests Acme Insights from AcmeAnalytics (Analytics / BI) at $5000 annual cost for 10 users with internal_documents access and no integrations. Budget is sufficient (available_usd 29000, within_budget true). The vendor is unverified: lookup_vendor_registry found false, get_vendor_risk returned HTTP 404, and get_purchase_history shows no purchases. An approved company-wide tool from a different vendor, MetricLoop (SW006, Analytics / BI, 55 seats), already covers the requester's department. evaluate_policy requires Department Head, Procurement, Security and Legal approvals and sets the baseline label 'Escalate to Security for manual review'. No instruction-like text was found in the request.",
+  "concerns": [
+    "Vendor risk could not be verified: get_vendor_risk returned 'HTTP 404: No vendor-risk record for 'AcmeAnalytics'' and lookup_vendor_registry returned found false, so no favourable risk or registry status can be assumed.",
+    "Existing approved tool overlap: MetricLoop (SW006, vendor MetricLoop, Analytics / BI, status Approved, 55 licensed seats, Company-wide scope) matches on same_category and covers_requester_department is true.",
+    "The business justification ('Departmental reporting for finance operations review.') does not state a capability gap that MetricLoop cannot meet.",
+    "Data access level is internal_documents, and the vendor has no registry or risk record, so Security and Legal review is required per evaluate_policy.",
+    "No prior purchase history with AcmeAnalytics (purchases: [])."
+  ],
+  "inferred_data_classes": [],
+  "additional_risk_flags": ["existing_tool_overlap"],
+  "additional_missing_information": [],
+  "overlap_assessment": {
+    "is_overlap": true,
+    "credible_gap": false,
+    "reason": "find_existing_software returned MetricLoop (SW006), an Approved company-wide Analytics / BI tool from a different vendor with 55 licensed seats that covers the requester's department (match_types: same_category, covers_requester_department: true). The request describes only departmental reporting for a finance operations review and names no capability MetricLoop lacks, so no credible gap is evidenced."
+  },
+  "evidence": [
+    {
+      "source": "get_request_context",
+      "finding": "Requester Priya Shah (E006), Finance, Director, India; manager and department head Lisa Park (E010), Operations, VP, United States. Request: Acme Insights, AcmeAnalytics, Analytics / BI, annual_cost_usd 5000, user_count 10, data_access_level internal_documents, requested_integrations [], urgency normal.",
+      "reference": "request_id SYN-05"
+    },
+    {
+      "source": "check_budget",
+      "finding": "Finance annual_software_budget_usd 90000, committed_usd 61000, available_usd 29000; annual_cost_usd 5000, within_budget true, shortfall_usd 0.0.",
+      "reference": "department Finance"
+    },
+    {
+      "source": "find_existing_software",
+      "finding": "One match: MetricLoop (vendor MetricLoop), category Analytics / BI, status Approved, licensed_seats 55, scope Company-wide, match_types [same_category], covers_requester_department true.",
+      "reference": "software_id SW006"
+    },
+    {
+      "source": "get_purchase_history",
+      "finding": "No purchases on record for vendor AcmeAnalytics (purchases: []).",
+      "reference": "vendor AcmeAnalytics"
+    },
+    {
+      "source": "lookup_vendor_registry",
+      "finding": "AcmeAnalytics not found in the vendor registry (found false, record null); vendor status could not be verified.",
+      "reference": "vendor AcmeAnalytics"
+    },
+    {
+      "source": "get_vendor_risk",
+      "finding": "Lookup failed: status not_found, error 'HTTP 404: No vendor-risk record for 'AcmeAnalytics'', http_status 404. Vendor risk could not be verified.",
+      "reference": "vendor AcmeAnalytics"
+    },
+    {
+      "source": "evaluate_policy",
+      "finding": "required_approvals: Department Head, Procurement, Security, Legal. risk_flags: existing_tool_overlap, vendor_risk_unavailable, security_review_required, legal_review_required. missing_information: []. data_classes: []. baseline_label: 'Escalate to Security for manual review'.",
+      "reference": "deterministic policy result"
+    }
+  ]
+}
