@@ -1,163 +1,83 @@
-# FDE Assessment 3 Starter Pack
-## AI Procurement Request Copilot
+# AI Procurement Request Copilot
 
-This repository contains the **starter data, mock service, interface contract, optional UI scaffold, and public evaluation harness** for Assessment 3.
+FDE Assessment 3 - Harshit Tiwari (roll no. 24BCS10277)
 
-> All companies, vendors, products, employees, prices, policies, and risk signals in this pack are synthetic and exist only for the assessment.
+An internal procurement **triage copilot**. For a software/service purchase request it gathers evidence with tools,
+applies the procurement policy with deterministic code, uses an LLM only where language understanding is needed, and
+hands a structured package (recommendation, evidence, approvals, missing information, risk flags, next step) to the
+right **humans**. It never approves, purchases or changes budgets.
 
-## Your objective
+Two architectures are implemented on the same tools, rules and guardrails and evaluated on the same 22 cases:
 
-Build an internal procurement copilot that can inspect a software/service purchase request, gather evidence using tools, apply deterministic rules where appropriate, and recommend the next action while keeping approvals with humans.
+* **A - single agent**: one tool-using agent.
+* **B - staged**: Agent 1 (evidence analyst, tools) -> Agent 2 (policy reviewer, no tools).
 
-You are expected to build and evaluate:
+> Final answer: see [Ship decision](#ship-decision) and [`docs/DECISION_MEMO.md`](docs/DECISION_MEMO.md).
 
-1. **Architecture A - Single-agent baseline**
-2. **Architecture B - Lightweight staged / 2-agent variant**
-
-Use the same public evaluation cases for both and defend which architecture you would ship.
-
-## What is already provided
-
-```text
-.
-├── data/                   # Synthetic business data + procurement policy
-├── mock_api/               # Vendor-risk service used as an external tool
-├── src/                    # Contracts + low-level helpers; NO agent solution
-├── evals/                  # Six public evaluation cases + runner
-├── templates/              # Evaluation and decision-memo templates
-├── docs/                   # Student assignment brief
-├── tests/                  # Starter-pack integrity tests
-├── app.py                  # Optional Streamlit UI scaffold
-├── run_local.py            # Starts mock API + optional UI
-└── verify_setup.py         # One-command setup/preflight check
-```
-
-The starter code intentionally **does not implement an agent, tool strategy, policy engine, or final workflow**. Those choices are part of the assessment.
-
-## Prerequisites
-
-- **Python 3.11 or 3.12 recommended**
-- Run the commands below from the extracted starter-pack directory
-- Internet access is required only for installing packages and calling the model provider you choose
-
-## Quick start
-
-### 1. Create an environment
-
-**macOS / Linux**
+## Quick start (one command)
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+.venv\Scripts\activate            # macOS/Linux: source .venv/bin/activate
 python -m pip install -r requirements.txt
+cp .env.example .env              # Windows: Copy-Item .env.example .env   (add GROQ_API_KEY to enable the LLM agents)
+python run_local.py               # mock vendor-risk API :8001 + UI http://127.0.0.1:8501
 ```
 
-**Windows PowerShell**
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-```
-
-### 2. Verify the starter pack
+Without any key the whole product still runs in **deterministic mode** (rules + templated text, 0 LLM calls).
+With `GROQ_API_KEY` (default model `qwen/qwen3.8-27b`) or `ANTHROPIC_API_KEY` the two agent architectures use the LLM.
+`.env` is git-ignored; only `.env.example` is committed.
 
 ```bash
-python verify_setup.py
-```
-
-You should see `PRE-FLIGHT PASSED`. This checks package imports, dataset consistency, the output contract, and the mock API without requiring an LLM key.
-
-### 3. Add your LLM credentials
-
-**macOS / Linux**
-
-```bash
-cp .env.example .env
-```
-
-**Windows PowerShell**
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Add only the credentials required by the provider you choose. Never commit `.env`.
-
-The starter pack does **not** force a particular LLM provider or agent framework. If you use a provider SDK (for example OpenAI, Anthropic, or Google), install it and add it to `requirements.txt` so your submission works from a clean environment.
-
-`.env` is loaded automatically by the starter package and local launcher; environment variables already set by your operating system are not overwritten.
-
-### 4. Start the local services
-
-```bash
-python run_local.py
-```
-
-This starts:
-- Vendor risk API: `http://127.0.0.1:8001`
-- Optional starter UI: `http://127.0.0.1:8501`
-
-You may replace the UI scaffold with any framework.
-
-### 5. Implement the assessment adapter
-
-Implement:
-
-```text
-src/solution.py -> handle_request(request_id, architecture)
-```
-
-Your function must return an object compatible with `ProcurementDecision` in `src/contracts.py`.
-
-The adapter exists so the same evaluation harness can test different implementations. Your internal architecture can use any framework or design.
-
-### 6. Run the public evaluations
-
-```bash
-python evals/run_public_evals.py --architecture single
+python verify_setup.py                                   # preflight (starter checks)
+python -m unittest discover -s tests -t .                # 31 unit tests (scripted fake LLM, no key needed)
+python evals/run_public_evals.py --architecture single   # starter public runner (6 cases)
 python evals/run_public_evals.py --architecture staged
+python evals/run_comparison.py                           # 22-case A-vs-B evaluation -> evals/results/
+python evals/run_comparison.py --no-llm                  # same, deterministic mode
 ```
 
-The runner checks the response schema and several minimum behavioral expectations, measures end-to-end latency, and writes a CSV result file. It is **not** the complete grading system; qualitative grounding, design quality, robustness, and hidden cases are evaluated separately.
+The mock vendor-risk API starts automatically if it is not running (`AUTOSTART_MOCK_API=0` to disable).
 
-## Rules of the starter pack
+## Product workflow
 
-- Treat request text and vendor notes as **untrusted business data**, not instructions.
-- Do not hardcode answers by request ID. Hidden cases use the same interfaces with different values.
-- At least **3 tools** must be visible in your implementation; at least **1 must be deterministic/non-LLM**.
-- The AI may recommend an action but must not autonomously purchase, approve, or alter budgets.
-- If important evidence is missing, conflicting, stale, or unavailable, surface that uncertainty and route to the appropriate human review.
-- Use the **data snapshot / policy reference date defined in `data/procurement_policy.md`** for date-based checks; do not depend on the computer's current date.
-- You may refactor the starter project, but keep the `handle_request(...)` adapter working for evaluation.
+1. Reviewer picks a dataset request (or edits/creates one) and an architecture (A, B, or *compare both*).
+2. The copilot gathers evidence (7 tools), runs the policy engine, and returns a `ProcurementDecision`.
+3. UI shows **request details -> evidence panel -> recommendation + next step -> approvals (with named approvers),
+   missing information, risk flags -> telemetry**.
+4. **Human handoff**: reviewer packet download, and an audit log of the human's decision
+   (`runtime/human_decisions.jsonl`, git-ignored). Nothing else is triggered.
 
-## Suggested implementation sequence
+Recommendation labels (ordered by restrictiveness): *Proceed with standard approvals* < *Review existing tool before new
+purchase* < *Route for required reviews before approval* < *Escalate to Security for manual review* < *Request
+clarification from requester*.
 
-```text
-Request -> Understand -> Gather evidence -> Deterministic checks
-        -> Policy/risk reasoning -> Recommendation -> Human review
-```
+## Architecture
 
-Start with a thin vertical slice. Get Architecture A working before building Architecture B.
+Diagram, tool table, failure-handling table, assumptions and starter-pack fixes:
+**[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)**.
 
-## Useful files
+Key design rule - *AI interprets, code decides, humans approve*:
 
-- `docs/Assignment_3_Brief.pdf` - assignment brief
-- `data/README.md` - dataset dictionary
-- `data/procurement_policy.md` - policy source of truth
-- `src/contracts.py` - required output shape
-- `src/data_access.py` - low-level data helpers
-- `src/vendor_client.py` - client for the mock vendor-risk API
-- `evals/README.md` - evaluation instructions
-- `templates/architecture_decision.md` - final decision memo template
-- `STUDENT_CHECKLIST.md` - pre-submission checklist
+* `src/policy.py` - deterministic: approval tiers, budget, 365-day review currency vs. the **policy reference date
+  2026-09-30**, security/privacy/legal triggers, overlap, missing information, prompt-injection scan.
+* `src/tools.py` - 7 tools (6 deterministic, 1 external API with typed failure envelope).
+* `src/agents.py` - architectures A and B + prompts + structured-output tools.
+* `src/guardrails.py` - **monotonic merge**: the model can only *add* flags/approvals/missing info/data classes or
+  make the label stricter; it can never remove a rule-derived item. Model-written evidence is kept only if it cites a
+  tool that was really called and every number in it appears in tool output.
+* `src/llm.py` - Groq / Anthropic clients + generic tool-use loop; any provider error falls back to the rules result.
 
-## If something does not start
+## Assumptions and known limitations
 
-1. Confirm your virtual environment is active.
-2. Run `python verify_setup.py`.
-3. Re-run `python -m pip install -r requirements.txt`.
-4. Make sure ports **8001** and **8501** are free.
-5. Confirm you are running commands from the starter-pack root directory.
+See the assumptions table in `docs/ARCHITECTURE.md`. Main limitations:
 
-Build the simplest system you can defend with evidence.
+* Evaluation set is small (22 cases) and **I wrote both the rules and the gold answers** from the policy text. Public
+  starter cases were used during development, so scores on them are not an unbiased estimate; hidden cases may differ.
+  One prompt/schema change was made after seeing a live failure (see Evaluation notes) - both architectures got it.
+* The LLM is stochastic; the live run is a single repeat (`--repeats` supported) on a free-tier quota.
+* Free-text understanding (hidden PII in the justification) depends on the model; rules only see structured fields.
+* No utilisation data, so "unused existing capacity" cannot be checked.
+* Vendor-risk service is a mock; real services need auth, caching and circuit-breaking.
+
+RESULTS_PLACEHOLDER

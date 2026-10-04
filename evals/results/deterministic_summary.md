@@ -5,8 +5,8 @@
 | Cases passing ALL gold checks | 21/22 (96%) | 21/22 (96%) |
 | Public-case minimum checks | 6/6 | 6/6 |
 | Run errors | 0 | 0 |
-| Avg latency (ms) | 103.5 | 84.7 |
-| p95 latency (ms) | 370.1 | 360.2 |
+| Avg latency (ms, excl. quota waits) | 79.7 | 80.8 |
+| p95 latency (ms, excl. quota waits) | 358.9 | 359.3 |
 | Avg LLM calls / request | 0 | 0 |
 | Avg tool calls / request | 7 | 7 |
 | Avg tokens / request | 0 | 0 |

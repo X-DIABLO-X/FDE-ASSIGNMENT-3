@@ -88,15 +88,19 @@ def patched(case: dict) -> ExitStack:
     return stack
 
 
-def run_case(case: dict, architecture: str) -> tuple[ProcurementDecision | None, float, str]:
+def run_case(case: dict, architecture: str) -> tuple[ProcurementDecision | None, float, float, str]:
+    """Returns (decision, latency_ms, throttled_ms, error). throttled_ms = time spent waiting on the provider's quota."""
     request = case.get("request") or da.get_request(case["request_id"])
+    llm = get_llm()
+    waited0 = getattr(llm, "throttled_s", 0.0)
     start = time.perf_counter()
     try:
         with patched(case):
             decision = analyze_request(dict(request), architecture)
-        return decision, (time.perf_counter() - start) * 1000, ""
+        err = ""
     except Exception as exc:  # never lose a row
-        return None, (time.perf_counter() - start) * 1000, f"{type(exc).__name__}: {exc}"
+        decision, err = None, f"{type(exc).__name__}: {exc}"
+    return decision, (time.perf_counter() - start) * 1000, (getattr(llm, "throttled_s", 0.0) - waited0) * 1000, err
 
 
 def main() -> None:
@@ -120,16 +124,18 @@ def main() -> None:
         cases = [c for c in cases if c["case_id"] in args.cases]
     public = {c["request_id"]: c["expectations"]
               for c in json.loads((ROOT / "evals" / "public_cases.json").read_text(encoding="utf-8"))}
-    run_case(cases[0], "single") if llm is None else None  # warm-up (imports, pandas); skipped for LLM runs to save cost
+    if llm is None:
+        run_case(cases[0], "single")  # warm-up (imports, pandas); skipped for LLM runs to save quota
 
     rows: list[dict] = []
     print(f"\nComparison run - mode={mode} - {len(cases)} cases x {len(args.architectures)} architectures x {args.repeats} repeat(s)\n")
     for arch in args.architectures:
         for case in cases:
             for rep in range(args.repeats):
-                decision, ms, error = run_case(case, arch)
-                row = {"architecture": arch, "case_id": case["case_id"], "repeat": rep, "latency_ms": round(ms, 1),
-                       "error": error}
+                decision, ms, wait_ms, error = run_case(case, arch)
+                ms_net = max(0.0, ms - wait_ms)  # latency excluding provider-quota waits
+                row = {"architecture": arch, "case_id": case["case_id"], "repeat": rep, "latency_ms": round(ms_net, 1),
+                       "latency_incl_quota_wait_ms": round(ms, 1), "error": error}
                 if decision is None:
                     row.update(policy_pass=False, failed_checks="ERROR")
                 else:
@@ -147,7 +153,7 @@ def main() -> None:
                         grounded_evidence=g_ok, evidence_items=g_n, ungrounded_dropped=tel.ungrounded_evidence_dropped or 0,
                         mode=tel.mode, notes=" ; ".join(tel.agent_notes))
                 rows.append(row)
-                print(f"{'PASS' if row['policy_pass'] else 'FAIL'}  {arch:6s} {case['case_id']:8s} {ms:8.0f} ms  "
+                print(f"{'PASS' if row['policy_pass'] else 'FAIL'}  {arch:6s} {case['case_id']:8s} {ms_net:8.0f} ms  "
                       f"llm={row.get('llm_calls', '-')} tools={row.get('tool_calls', '-')}  {row['failed_checks']}")
 
     RESULTS.mkdir(parents=True, exist_ok=True)
@@ -203,8 +209,8 @@ def render_markdown(s: dict) -> str:
         for a in archs) + " |"
     row("Public-case minimum checks", "public_minimum_pass")
     row("Run errors", "errors")
-    row("Avg latency (ms)", "avg_latency_ms")
-    row("p95 latency (ms)", "p95_latency_ms")
+    row("Avg latency (ms, excl. quota waits)", "avg_latency_ms")
+    row("p95 latency (ms, excl. quota waits)", "p95_latency_ms")
     row("Avg LLM calls / request", "avg_llm_calls")
     row("Avg tool calls / request", "avg_tool_calls")
     row("Avg tokens / request", "avg_tokens")

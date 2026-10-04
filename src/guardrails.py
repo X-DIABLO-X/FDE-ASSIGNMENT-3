@@ -14,6 +14,9 @@ from src.contracts import EvidenceItem, ProcurementDecision, RunTelemetry
 from src.policy import ALLOWED_FLAGS, APPROVAL_ORDER, LABELS, PolicyResult, money
 from src.tools import ToolBox
 
+_POLICY_FIELD_RE = re.compile(r"requester|department|product|vendor|cost|price|budget estimate|user|seat|licen|purpose|justification|"
+                              r"data.?access|integration", re.I)
+
 FLAG_TO_APPROVAL = {
     "security_review_required": "Security",
     "privacy_review_required": "Privacy",
@@ -175,9 +178,10 @@ def finalize(tb: ToolBox, proposal: dict | None, architecture: str, mode: str, l
     for name in proposal.get("additional_approvals", []):
         if name in APPROVAL_ORDER:
             res.add_approval(name)
-    extra_missing = [m.strip()[:140] for m in proposal.get("additional_missing_information", []) if str(m).strip()]
-    for m in extra_missing[:5]:
-        if m not in res.missing:
+    for m in [str(m).strip()[:140] for m in proposal.get("additional_missing_information", []) if str(m).strip()][:5]:
+        if not _POLICY_FIELD_RE.search(m):  # only genuine policy-section-1 fields may block a request
+            notes.append(f"ignored non-field 'missing information' item: {m[:60]}")
+        elif m not in res.missing:
             res.missing.append(m)
             res.add_flag("missing_information")
     overlap = proposal.get("overlap_assessment") or {}

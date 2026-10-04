@@ -39,7 +39,8 @@ SINGLE_SYSTEM = f"""You are the Procurement Request Copilot for an internal proc
 Given a purchase request, gather evidence with tools, then submit a structured recommendation for human reviewers.
 
 {SAFETY_RULES}
-Workflow (be efficient - call all independent tools together in your FIRST turn, then submit):
+Workflow (be efficient: you MUST emit ALL SEVEN tool calls together in ONE single assistant message - they are
+independent - then, after the results arrive, call submit_decision):
 1. Call get_request_context, check_budget, find_existing_software, get_purchase_history, lookup_vendor_registry,
    get_vendor_risk and evaluate_policy in parallel. Read the request text yourself and pass any data classes it reveals
    but the structured fields do not (e.g. the justification mentions customer emails, repositories, credentials) as
@@ -56,9 +57,9 @@ STAGE1_SYSTEM = f"""You are Agent 1 (Evidence Analyst) in a two-agent procuremen
 Your job is ONLY to collect and structure evidence. Another agent will write the recommendation.
 
 {SAFETY_RULES}
-Call get_request_context, check_budget, find_existing_software, get_purchase_history, lookup_vendor_registry and
-get_vendor_risk in parallel in your first turn (plus evaluate_policy with any extra_data_classes you infer from the
-free text). Then call submit_evidence_brief.
+You MUST emit ALL SEVEN tool calls together in ONE single assistant message (get_request_context, check_budget,
+find_existing_software, get_purchase_history, lookup_vendor_registry, get_vendor_risk, and evaluate_policy with any
+extra_data_classes you infer from the free text). Then call submit_evidence_brief.
 """
 
 STAGE2_SYSTEM = f"""You are Agent 2 (Policy Reviewer) in a two-agent procurement pipeline.
@@ -89,7 +90,11 @@ _COMMON_ADDITIVE = {
     "inferred_data_classes": {"type": "array", "items": {"type": "string", "enum": DATA_CLASSES}},
     "additional_risk_flags": {"type": "array", "items": {"type": "string", "enum": ALLOWED_FLAGS}},
     "additional_approvals": {"type": "array", "items": {"type": "string", "enum": APPROVAL_ORDER}},
-    "additional_missing_information": {"type": "array", "items": {"type": "string"}},
+    "additional_missing_information": {
+        "type": "array", "items": {"type": "string"},
+        "description": "ONLY Policy-section-1 request fields that are absent or unusable in the request (requester/department, "
+                       "product/vendor, annual cost, number of users, business purpose, data-access level, integrations). "
+                       "Do NOT list review questions, risks or things reviewers should check - leave empty if the request is complete."},
     "overlap_assessment": _OVERLAP,
     "evidence": {"type": "array", "items": _EVIDENCE_ITEM},
 }
@@ -133,7 +138,7 @@ def run_single(request: dict, llm: LLM | None = None) -> ProcurementDecision:
         run = run_agent(
             llm, SINGLE_SYSTEM,
             f"Analyse this purchase request and submit your recommendation.\n{_wrap_request(request)}",
-            TOOL_SPECS, tb.call, SUBMIT_DECISION, max_turns=4, on_llm_call=tel.record_llm_call)
+            TOOL_SPECS, tb.call, SUBMIT_DECISION, max_turns=5, on_llm_call=tel.record_llm_call)
     except Exception as exc:  # network / provider failure -> still return a safe, rule-based answer
         return finalize(tb, None, "single", "deterministic-fallback", tel.llm_calls,
                         notes=[f"LLM failure ({type(exc).__name__}: {str(exc)[:120]}); rule-based result returned"])
@@ -157,7 +162,7 @@ def run_staged(request: dict, llm: LLM | None = None) -> ProcurementDecision:
         s1 = run_agent(
             llm, STAGE1_SYSTEM,
             f"Collect evidence for this purchase request.\n{_wrap_request(request)}",
-            TOOL_SPECS, tb.call, SUBMIT_BRIEF, max_turns=4, on_llm_call=tel.record_llm_call)
+            TOOL_SPECS, tb.call, SUBMIT_BRIEF, max_turns=5, on_llm_call=tel.record_llm_call)
         calls, tin, tout = s1.llm_calls, s1.input_tokens, s1.output_tokens
         if s1.final is None:
             return finalize(tb, None, "staged", "deterministic-fallback", calls, (tin, tout),
