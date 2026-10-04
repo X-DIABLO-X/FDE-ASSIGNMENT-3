@@ -110,6 +110,7 @@ def main() -> None:
     ap.add_argument("--no-llm", action="store_true", help="force deterministic-only mode")
     ap.add_argument("--cases", nargs="*", help="subset of case ids")
     ap.add_argument("--label", default=None, help="output file prefix (default: llm or deterministic)")
+    ap.add_argument("--resume", action="store_true", help="continue a previous run: skip rows already in <label>_rows.jsonl")
     args = ap.parse_args()
 
     if args.no_llm:
@@ -127,11 +128,20 @@ def main() -> None:
     if llm is None:
         run_case(cases[0], "single")  # warm-up (imports, pandas); skipped for LLM runs to save quota
 
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    journal = RESULTS / f"{label}_rows.jsonl"  # one JSON row per finished case: a killed run loses nothing
     rows: list[dict] = []
+    if args.resume and journal.exists():
+        rows = [json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines() if line.strip()]
+    elif journal.exists():
+        journal.unlink()
+    done = {(r["architecture"], r["case_id"], r["repeat"]) for r in rows}
     print(f"\nComparison run - mode={mode} - {len(cases)} cases x {len(args.architectures)} architectures x {args.repeats} repeat(s)\n")
     for arch in args.architectures:
         for case in cases:
             for rep in range(args.repeats):
+                if (arch, case["case_id"], rep) in done:
+                    continue
                 decision, ms, wait_ms, error = run_case(case, arch)
                 ms_net = max(0.0, ms - wait_ms)  # latency excluding provider-quota waits
                 row = {"architecture": arch, "case_id": case["case_id"], "repeat": rep, "latency_ms": round(ms_net, 1),
@@ -153,10 +163,11 @@ def main() -> None:
                         grounded_evidence=g_ok, evidence_items=g_n, ungrounded_dropped=tel.ungrounded_evidence_dropped or 0,
                         mode=tel.mode, notes=" ; ".join(tel.agent_notes))
                 rows.append(row)
+                with journal.open("a", encoding="utf-8") as jf:
+                    jf.write(json.dumps(row, default=str) + "\n")
                 print(f"{'PASS' if row['policy_pass'] else 'FAIL'}  {arch:6s} {case['case_id']:8s} {ms_net:8.0f} ms  "
                       f"llm={row.get('llm_calls', '-')} tools={row.get('tool_calls', '-')}  {row['failed_checks']}")
 
-    RESULTS.mkdir(parents=True, exist_ok=True)
     with (RESULTS / f"{label}_per_case.csv").open("w", newline="", encoding="utf-8") as f:
         fields = list(dict.fromkeys(k for r in rows for k in r))
         w = csv.DictWriter(f, fieldnames=fields)

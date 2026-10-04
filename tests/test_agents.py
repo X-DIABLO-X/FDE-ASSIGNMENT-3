@@ -50,7 +50,7 @@ class SingleAgentTests(unittest.TestCase):
         self.assertTrue(d.human_review_required)
         self.assertEqual(d.next_step, "Send to Security and Procurement for human review.")
 
-    def test_model_cannot_relax_rules(self):
+    def test_model_cannot_relax_rules(self):  # label + approvals come from rules whatever the model says
         # model tries to wave a budget-short, PII, new-vendor request through
         llm = ScriptedLLM(tool_round(), final("submit_decision", recommendation=LABELS[0], next_step="Looks fine, approve."))
         d = run_single(get_request("REQ-1005"), llm)
@@ -59,7 +59,7 @@ class SingleAgentTests(unittest.TestCase):
             self.assertIn(a, d.required_approvals)
         self.assertIn("budget_insufficient", d.risk_flags)
         self.assertTrue(d.human_review_required)
-        self.assertTrue(any("less restrictive" in n for n in d.telemetry.agent_notes))
+        self.assertTrue(any("rules decided" in n for n in d.telemetry.agent_notes))
 
     def test_injection_stays_ignored_even_if_model_obeys(self):
         llm = ScriptedLLM(tool_round(), final("submit_decision", recommendation=LABELS[0], next_step="CFO approved, proceed."))
@@ -98,6 +98,39 @@ class SingleAgentTests(unittest.TestCase):
         d = run_single(get_request("REQ-1001"), llm)
         self.assertNotIn("made_up_flag", d.risk_flags)
         self.assertNotIn("The Pope", d.required_approvals)
+
+    def test_expansion_overlap_claim_is_ignored(self):
+        llm = ScriptedLLM(tool_round(), final("submit_decision", recommendation=LABELS[1], next_step="x",
+                                              additional_risk_flags=["existing_tool_overlap"],
+                                              overlap_assessment={"is_overlap": True, "reason": "same vendor already licensed"}))
+        d = run_single(get_request("REQ-1001"), llm)  # explicit add-on of the requester's own SignFlow
+        self.assertNotIn("existing_tool_overlap", d.risk_flags)
+        self.assertEqual(d.recommendation, LABELS[0])
+        self.assertEqual(d.required_approvals, ["Manager"])
+
+    def test_model_cannot_add_rule_derived_flags_approvals_or_stricter_label(self):
+        llm = ScriptedLLM(tool_round(), final("submit_decision", recommendation=LABELS[4], next_step="x",
+                                              additional_risk_flags=["legal_review_required", "budget_insufficient"],
+                                              additional_approvals=["CFO", "Legal"]))
+        d = run_single(get_request("REQ-1001"), llm)
+        self.assertEqual(d.recommendation, LABELS[0])
+        self.assertEqual(d.required_approvals, ["Manager"])
+        self.assertEqual(d.risk_flags, [])
+
+    def test_cross_vendor_overlap_and_injection_flags_accepted(self):
+        llm = ScriptedLLM(tool_round(), final("submit_decision", recommendation=LABELS[2], next_step="x",
+                                              additional_risk_flags=["prompt_injection_detected"],
+                                              overlap_assessment={"is_overlap": True, "reason": "NeuralDesk can summarise contracts"}))
+        d = run_single(get_request("REQ-1009"), llm)
+        self.assertIn("prompt_injection_detected", d.risk_flags)
+        self.assertIn("existing_tool_overlap", d.risk_flags)
+
+    def test_non_field_missing_information_is_ignored(self):
+        llm = ScriptedLLM(tool_round(), final("submit_decision", recommendation=LABELS[0], next_step="x",
+                                              additional_missing_information=["Whether Security should confirm residency"]))
+        d = run_single(get_request("REQ-1003"), llm)
+        self.assertNotIn("missing_information", d.risk_flags)
+        self.assertNotEqual(d.recommendation, LABELS[4])
 
     def test_llm_exception_falls_back_to_rules(self):
         d = run_single(get_request("REQ-1009"), ScriptedLLM(RuntimeError("provider down")))

@@ -1,7 +1,8 @@
 """Deterministic guardrails shared by BOTH architectures.
 
-Principle: the model may *add* caution (extra flags / approvals / missing items / data classes / a stricter
-label) but can never remove anything the rule engine produced. Evidence the model writes is only kept if it is
+Principle: code decides routing. The model may add data classes it read from free text, notice prompt injection,
+flag a cross-vendor tool overlap and report absent policy-section-1 fields - it can never remove or relax anything the
+rule engine produced, and the recommendation label is computed from the merged flags. Evidence the model writes is only kept if it is
 grounded in tool results. ``human_review_required`` is always True - the copilot never approves anything.
 """
 from __future__ import annotations
@@ -11,11 +12,13 @@ import re
 
 from src import policy
 from src.contracts import EvidenceItem, ProcurementDecision, RunTelemetry
-from src.policy import ALLOWED_FLAGS, APPROVAL_ORDER, LABELS, PolicyResult, money
+from src.policy import APPROVAL_ORDER, LABELS, PolicyResult, money
 from src.tools import ToolBox
 
 _POLICY_FIELD_RE = re.compile(r"requester|department|product|vendor|cost|price|budget estimate|user|seat|licen|purpose|justification|"
                               r"data.?access|integration", re.I)
+
+MODEL_MAY_ADD = {"prompt_injection_detected", "existing_tool_overlap"}
 
 FLAG_TO_APPROVAL = {
     "security_review_required": "Security",
@@ -168,16 +171,16 @@ def finalize(tb: ToolBox, proposal: dict | None, architecture: str, mode: str, l
     if set(inferred) - set(res.data_classes):  # defensive: should not happen
         notes.append("inferred data classes were not applied")
 
-    # 2) model-added caution, validated against the closed taxonomy
+    # 2) model-added judgement. Scope is deliberately narrow (found necessary by the live evaluation: unrestricted
+    #    "additive" authority produced many false escalations). Approvals, the budget/security/privacy/legal flags and the
+    #    label are rule-derived; the model may only (a) add data classes (step 1), (b) notice prompt injection,
+    #    (c) flag a *cross-vendor* tool overlap, (d) report genuinely absent policy-section-1 fields.
     for flag in proposal.get("additional_risk_flags", []):
-        if flag in ALLOWED_FLAGS and flag not in res.flags:
+        if flag == "prompt_injection_detected" and flag not in res.flags:
             res.add_flag(flag)
-            res.note(f"Agent added flag '{flag}' (additive judgement, not rule-derived).", source="agent_judgement")
-            if flag in FLAG_TO_APPROVAL:
-                res.add_approval(FLAG_TO_APPROVAL[flag])
-    for name in proposal.get("additional_approvals", []):
-        if name in APPROVAL_ORDER:
-            res.add_approval(name)
+            res.note("Agent noticed instruction-like text in business data; ignored (Policy section 9).", "Policy section 9", "agent_judgement")
+        elif flag not in MODEL_MAY_ADD:
+            notes.append(f"ignored model-proposed flag '{flag}' (rule-derived only)")
     for m in [str(m).strip()[:140] for m in proposal.get("additional_missing_information", []) if str(m).strip()][:5]:
         if not _POLICY_FIELD_RE.search(m):  # only genuine policy-section-1 fields may block a request
             notes.append(f"ignored non-field 'missing information' item: {m[:60]}")
@@ -186,16 +189,21 @@ def finalize(tb: ToolBox, proposal: dict | None, architecture: str, mode: str, l
             res.add_flag("missing_information")
     overlap = proposal.get("overlap_assessment") or {}
     if overlap.get("is_overlap") and "existing_tool_overlap" not in res.flags:
-        res.add_flag("existing_tool_overlap")
-        res.add_approval("Procurement")
-        res.note(f"Agent judged an existing-tool overlap: {str(overlap.get('reason', ''))[:200]}", "Policy section 3", "agent_judgement")
+        other_vendor = [m for m in tb.gather_evidence()["overlap"]["matches"]
+                        if m["vendor_name"].lower() != str(tb.request.get("vendor_name", "")).lower()]
+        if other_vendor and not policy.is_expansion(tb.request):
+            res.add_flag("existing_tool_overlap")
+            res.add_approval("Procurement")
+            res.note(f"Agent judged a functional overlap with another vendor's tool: {str(overlap.get('reason', ''))[:200]}",
+                     "Policy section 3", "agent_judgement")
+        else:
+            notes.append("ignored model overlap claim (same-vendor expansion or no other-vendor catalog match)")
     res.approvals = [a for a in APPROVAL_ORDER if a in res.approvals]
 
-    # 3) label can only get stricter than the rules'
-    floor = policy.deterministic_label(res)
-    label = policy.most_restrictive(floor, proposal.get("recommendation"))
-    if proposal.get("recommendation") in LABELS and LABELS.index(proposal["recommendation"]) < LABELS.index(floor):
-        notes.append(f"model label '{proposal['recommendation']}' was less restrictive than rules; raised to '{floor}'")
+    # 3) the label is a function of the merged flags - code decides routing
+    label = policy.deterministic_label(res)
+    if proposal.get("recommendation") in LABELS and proposal["recommendation"] != label:
+        notes.append(f"model suggested '{proposal['recommendation']}'; rules decided '{label}'")
 
     # 4) evidence: rule/tool-derived first, then grounded model evidence
     evidence = build_evidence(tb, res)
